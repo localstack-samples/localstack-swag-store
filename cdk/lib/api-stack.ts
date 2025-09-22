@@ -75,6 +75,51 @@ export class ApiStack extends Stack {
 
     const orderById = orders.addResource('{orderId}');
     orderById.addMethod('GET', new apigw.LambdaIntegration(getOrderLambda));
+
+    // Admin routes
+    const admin = this.restApi.root.addResource('admin');
+    const adminOrders = admin.addResource('orders');
+
+    const listOrdersLambda = new NodejsFunction(this, 'ListOrdersLambda', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'list-orders', 'index.ts'),
+      handler: 'handler',
+      environment: {
+        ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
+      },
+      timeout: Duration.seconds(10),
+    });
+    if (props.ordersTable) props.ordersTable.grantReadData(listOrdersLambda);
+    adminOrders.addMethod('GET', new apigw.LambdaIntegration(listOrdersLambda));
+
+    const fulfill = adminOrders.addResource('fulfill');
+    const fulfillOrderLambda = new NodejsFunction(this, 'FulfillOrderLambda', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'fulfill-order', 'index.ts'),
+      handler: 'handler',
+      environment: {
+        ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
+        PRODUCTS_TABLE: props.productsTable.tableName,
+      },
+      timeout: Duration.seconds(15),
+    });
+    if (props.ordersTable) props.ordersTable.grantReadWriteData(fulfillOrderLambda);
+    props.productsTable.grantReadWriteData(fulfillOrderLambda);
+    fulfill.addMethod('POST', new apigw.LambdaIntegration(fulfillOrderLambda));
+
+    const inventory = admin.addResource('inventory');
+    const adjust = inventory.addResource('adjust');
+    const adjustInventoryLambda = new NodejsFunction(this, 'AdjustInventoryLambda', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'adjust-inventory', 'index.ts'),
+      handler: 'handler',
+      environment: {
+        PRODUCTS_TABLE: props.productsTable.tableName,
+      },
+      timeout: Duration.seconds(10),
+    });
+    props.productsTable.grantReadWriteData(adjustInventoryLambda);
+    adjust.addMethod('POST', new apigw.LambdaIntegration(adjustInventoryLambda));
   }
 }
 
