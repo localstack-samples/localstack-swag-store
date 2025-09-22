@@ -113,6 +113,12 @@ curl -s "$API_URL/orders/$ORDER_INSUFF" | jq .
 # Expect: status = FAILED_INSUFFICIENT_COINS
 ```
 
+### Running Tests
+
+```bash
+npm test
+```
+
 ### Notes
 
 - Backend validation uses a single `claimedCoinCount` against product `requiredCoins * quantity`.

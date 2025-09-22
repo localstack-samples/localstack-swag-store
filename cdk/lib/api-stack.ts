@@ -1,4 +1,4 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -43,6 +43,12 @@ export class ApiStack extends Stack {
 
     const products = this.restApi.root.addResource('products');
     products.addMethod('GET', new apigw.LambdaIntegration(listProductsLambda));
+
+    // Output the API base URL
+    new CfnOutput(this, 'ApiBaseUrl', {
+      value: this.restApi.url ?? '',
+      exportName: 'ApiBaseUrl',
+    });
 
     // create-order Lambda and route
     const createOrderLambda = new NodejsFunction(this, 'CreateOrderLambda', {
