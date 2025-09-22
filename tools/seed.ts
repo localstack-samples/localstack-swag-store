@@ -16,7 +16,6 @@ async function main() {
     const items = JSON.parse(file);
     if (!Array.isArray(items)) throw new Error('Seed file must be an array of products');
 
-    // DynamoDB BatchWrite supports up to 25 items per request
     const chunkSize = 25;
     for (let i = 0; i < items.length; i += chunkSize) {
       const chunk = items.slice(i, i + chunkSize);

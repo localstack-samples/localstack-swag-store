@@ -3,7 +3,7 @@
     "productId": "p-sticker-pack-1",
     "name": "LocalStack Sticker Pack",
     "description": "A set of 5 premium stickers.",
-    "cost": { "L1": 1, "L2": 0, "L3": 0 },
+    "requiredCoins": 1,
     "stock": 500,
     "version": 1
   },
@@ -11,7 +11,7 @@
     "productId": "p-socks-1",
     "name": "LocalStack Socks",
     "description": "Comfy dev socks.",
-    "cost": { "L1": 0, "L2": 2, "L3": 0 },
+    "requiredCoins": 2,
     "stock": 200,
     "version": 1
   },
@@ -19,7 +19,7 @@
     "productId": "p-yeti-cup-1",
     "name": "LocalStack Yeti Tumbler",
     "description": "Insulated drink tumbler.",
-    "cost": { "L1": 0, "L2": 0, "L3": 1 },
+    "requiredCoins": 3,
     "stock": 100,
     "version": 1
   },
@@ -27,7 +27,7 @@
     "productId": "p-power-bank-1",
     "name": "LocalStack Power Bank",
     "description": "10,000 mAh portable charger.",
-    "cost": { "L1": 1, "L2": 1, "L3": 1 },
+    "requiredCoins": 3,
     "stock": 50,
     "version": 1
   }
