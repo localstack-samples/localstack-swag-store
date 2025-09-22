@@ -120,6 +120,21 @@ export class ApiStack extends Stack {
     });
     props.productsTable.grantReadWriteData(adjustInventoryLambda);
     adjust.addMethod('POST', new apigw.LambdaIntegration(adjustInventoryLambda));
+
+    const stats = admin.addResource('stats');
+    const getStatsLambda = new NodejsFunction(this, 'GetStatsLambda', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'get-stats', 'index.ts'),
+      handler: 'handler',
+      environment: {
+        ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
+        PRODUCTS_TABLE: props.productsTable.tableName,
+      },
+      timeout: Duration.seconds(10),
+    });
+    if (props.ordersTable) props.ordersTable.grantReadData(getStatsLambda);
+    props.productsTable.grantReadData(getStatsLambda);
+    stats.addMethod('GET', new apigw.LambdaIntegration(getStatsLambda));
   }
 }
 
