@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - 'README.md'
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # “At 00:00 on Sunday.”
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup LocalStack
+        uses: localstack/setup-localstack@main
+        with:
+          image-tag: 'latest'
+          use-pro: 'true'
+          configuration: LS_LOG=trace
+          install-awslocal: 'true'
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+
+      - name: Install CDK and cdklocal
+        run: |
+          npm install -g aws-cdk
+          npm install -g aws-cdk-local
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd cdk && npm ci
+
+      - name: Build CDK app
+        working-directory: cdk
+        run: |
+          npm run build
+
+      - name: Bootstrap CDK
+        working-directory: cdk
+        run: |
+          cdklocal bootstrap
+
+      - name: Deploy CDK stacks to LocalStack
+        working-directory: cdk
+        run: |
+          cdklocal deploy --all --require-approval never
+
+      - name: Seed products data
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_ENDPOINT_URL: http://localhost:4566
+          AWS_REGION: us-east-1
+        run: |
+          npm run seed
+
+      - name: Run tests
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_ENDPOINT_URL: http://localhost:4566
+          AWS_REGION: us-east-1
+        run: |
+          npm test
+
+      - name: LocalStack logs (on failure)
+        if: failure()
+        run: |
+          localstack logs
