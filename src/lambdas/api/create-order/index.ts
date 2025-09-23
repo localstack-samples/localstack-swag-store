@@ -2,14 +2,17 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { ulid } from 'ulid';
+import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 
 const ORDERS_TABLE = process.env.ORDERS_TABLE || 'orders';
 const ORDER_QUEUE_URL = process.env.ORDER_QUEUE_URL || '';
+const EMAIL_STATE_MACHINE_ARN = process.env.EMAIL_STATE_MACHINE_ARN || '';
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
 
 const ddb = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(ddb);
 const sqs = new SQSClient({ region });
+const sfn = new SFNClient({ region });
 
 export const handler = async (event: any) => {
   try {
@@ -35,6 +38,20 @@ export const handler = async (event: any) => {
     };
 
     await docClient.send(new PutCommand({ TableName: ORDERS_TABLE, Item: orderItem }));
+
+    if (EMAIL_STATE_MACHINE_ARN) {
+      const input = {
+        toAddress: [orderItem.attendeeEmail],
+        subject: `Your LocalStack Swag Order #${orderItem.orderId} has been placed!`,
+        htmlBody: `<h1>Thank you, ${orderItem.attendeeName}!</h1><p>Your order has been placed and is now being processed. You will receive another email once it is ready for pickup at the booth.</p>`,
+      };
+      sfn.send(new StartExecutionCommand({
+        stateMachineArn: EMAIL_STATE_MACHINE_ARN,
+        input: JSON.stringify(input),
+      })).catch((e) => console.warn('Failed to start email state machine:', e?.message || e));
+    } else {
+      console.warn('EMAIL_STATE_MACHINE_ARN not configured; skipping email trigger');
+    }
 
     if (!ORDER_QUEUE_URL) {
       console.warn('ORDER_QUEUE_URL not configured; skipping enqueue');

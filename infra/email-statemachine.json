@@ -1,0 +1,46 @@
+{
+  "Comment": "A generic state machine to send an email via SES.",
+  "StartAt": "SendEmailTask",
+  "States": {
+    "SendEmailTask": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:sesv2:sendEmail",
+      "Parameters": {
+        "FromEmailAddress": "${FROM_EMAIL_ADDRESS}",
+        "Destination": {
+          "ToAddresses.$": "$.toAddress"
+        },
+        "Content": {
+          "Simple": {
+            "Subject": {
+              "Data.$": "$.subject",
+              "Charset": "UTF-8"
+            },
+            "Body": {
+              "Html": {
+                "Data.$": "$.htmlBody",
+                "Charset": "UTF-8"
+              }
+            }
+          }
+        }
+      },
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "EmailFailed"
+        }
+      ]
+    },
+    "EmailFailed": {
+      "Type": "Fail",
+      "Error": "EmailSendingFailed",
+      "Cause": "The SES sendEmail task failed. See execution history for details."
+    }
+  }
+}
+
+

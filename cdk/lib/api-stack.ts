@@ -6,11 +6,13 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 
 interface ApiStackProps extends StackProps {
   productsTable: dynamodb.ITable;
   ordersTable?: dynamodb.ITable;
   orderQueue?: sqs.IQueue;
+  notificationStateMachine?: sfn.IStateMachine;
 }
 
 export class ApiStack extends Stack {
@@ -58,11 +60,13 @@ export class ApiStack extends Stack {
       environment: {
         ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
         ORDER_QUEUE_URL: props.orderQueue ? props.orderQueue.queueUrl : '',
+        EMAIL_STATE_MACHINE_ARN: props.notificationStateMachine ? props.notificationStateMachine.stateMachineArn : '',
       },
       timeout: Duration.seconds(10),
     });
     if (props.ordersTable) props.ordersTable.grantWriteData(createOrderLambda);
     if (props.orderQueue) props.orderQueue.grantSendMessages(createOrderLambda);
+    if (props.notificationStateMachine) props.notificationStateMachine.grantStartExecution(createOrderLambda);
 
     const orders = this.restApi.root.addResource('orders');
     orders.addMethod('POST', new apigw.LambdaIntegration(createOrderLambda));
