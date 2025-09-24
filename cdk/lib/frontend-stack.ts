@@ -5,6 +5,8 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as path from 'path';
+import * as fs from 'fs';
+import { execSync } from 'child_process';
 
 export interface FrontendStackProps extends cdk.StackProps {}
 
@@ -47,28 +49,24 @@ export class FrontendStack extends cdk.Stack {
       distributionPaths: ['/*'],
       sources: [
         s3deploy.Source.asset(frontendPath, {
-          bundling: {
-            image: cdk.DockerImage.fromRegistry('node:22'),
-            environment: {
-              CI: 'true',
-              NPM_CONFIG_CACHE: '/tmp/.npm',
-              AWS_ENDPOINT_URL: 'http://host.docker.internal:4566',
-              API_NAME: 'LocalStack Swag Store API',
+          bundling: ({
+            local: {
+              tryBundle(outputDir: string) {
+                const env = {
+                  ...process.env,
+                  AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL || 'http://localhost:4566',
+                } as NodeJS.ProcessEnv;
+                try {
+                  execSync('npm ci --no-audit --no-fund --include=dev', { cwd: frontendPath, stdio: 'inherit', env });
+                  execSync('npm run build', { cwd: frontendPath, stdio: 'inherit', env });
+                  fs.cpSync(path.join(frontendPath, 'dist'), outputDir, { recursive: true });
+                  return true;
+                } catch (e: any) {
+                  throw new Error(`Local frontend build failed: ${e?.message || e}`);
+                }
+              },
             },
-            command: [
-              'sh',
-              '-c',
-              [
-                'set -e',
-                'cd /asset-input',
-                'npm ci --no-audit --no-fund --include=dev',
-                'npm run build',
-                'mkdir -p /asset-output',
-                'cp -r dist/* /asset-output/',
-              ].join(' && '),
-            ],
-            workingDirectory: '/asset-input',
-          },
+          } as any),
         }),
       ],
     });
