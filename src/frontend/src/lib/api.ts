@@ -46,9 +46,6 @@ const baseURL = (import.meta as any).env?.VITE_API_BASE_URL as string | undefine
 const api: AxiosInstance = axios.create({
   baseURL: baseURL,
   timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 api.interceptors.response.use(
@@ -81,7 +78,9 @@ export async function getProduct(productId: string): Promise<Product | undefined
 
 export async function createOrder(payload: CreateOrderPayload): Promise<{ orderId: string } & Partial<Order>> {
   ensureBaseUrl()
-  const { data } = await api.post('/orders', payload)
+  const { data } = await api.post('/orders', JSON.stringify(payload), {
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+  })
   // Some backends may return { orderId } or full order
   if ((data as any)?.orderId) return data as { orderId: string } & Partial<Order>
   if ((data as any)?.order?.orderId) return (data as any).order as { orderId: string } & Partial<Order>
@@ -106,13 +105,17 @@ export async function getAdminOrders(status?: string): Promise<Order[]> {
 
 export async function fulfillOrder(orderId: string): Promise<any> {
   ensureBaseUrl()
-  const { data } = await api.post('/admin/orders/fulfill', { orderId })
+  const { data } = await api.post('/admin/orders/fulfill', JSON.stringify({ orderId }), {
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+  })
   return data
 }
 
 export async function setInventory(productId: string, quantity: number): Promise<any> {
   ensureBaseUrl()
-  const { data } = await api.post('/admin/inventory/adjust', { productId, quantity })
+  const { data } = await api.post('/admin/inventory/adjust', JSON.stringify({ productId, quantity }), {
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+  })
   return data
 }
 
