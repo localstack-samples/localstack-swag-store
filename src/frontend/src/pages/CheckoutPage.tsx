@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { createOrder, getProduct, type Product } from '../lib/api'
+import { useCart } from '../context/CartContext'
 
 function CheckoutPage() {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
+  const { cartItems, totalRequiredCoins, clearCart } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
-  const [loadingProduct, setLoadingProduct] = useState<boolean>(true)
+  const [loadingProduct, setLoadingProduct] = useState<boolean>(!!productId)
   const [error, setError] = useState<string | null>(null)
 
   const [name, setName] = useState<string>('')
@@ -18,9 +20,10 @@ function CheckoutPage() {
   useEffect(() => {
     let mounted = true
     if (!productId) {
-      setError('Missing product id')
-      setLoadingProduct(false)
-      return
+      setCoinCount(totalRequiredCoins)
+      return () => {
+        mounted = false
+      }
     }
     getProduct(productId)
       .then((p) => {
@@ -44,25 +47,31 @@ function CheckoutPage() {
     return () => {
       mounted = false
     }
-  }, [productId])
+  }, [productId, totalRequiredCoins])
 
+  const hasItems = productId ? !!product : cartItems.length > 0
+  const minRequired = productId ? (product?.requiredCoins || 0) : totalRequiredCoins
   const canSubmit = useMemo(() => {
-    return !!product && name.trim().length > 0 && /.+@.+\..+/.test(email) && coinCount > 0
-  }, [product, name, email, coinCount])
+    return hasItems && name.trim().length > 0 && /.+@.+\..+/.test(email) && coinCount >= minRequired
+  }, [hasItems, name, email, coinCount, minRequired])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!product || !canSubmit || submitting) return
+    if (!canSubmit || submitting) return
     try {
       setSubmitting(true)
+      const items = productId
+        ? [{ productId: product!.productId, quantity: 1 }]
+        : cartItems.map((p) => ({ productId: p.productId, quantity: 1 }))
       const res = await createOrder({
         name: name.trim(),
         email: email.trim(),
-        items: [{ productId: product.productId, quantity: 1 }],
+        items,
         coinCount,
       })
       const orderId = (res as any)?.orderId
       if (orderId) {
+        if (!productId) clearCart()
         navigate(`/order/${orderId}`)
       } else {
         throw new Error('Order ID missing in response')
@@ -88,15 +97,34 @@ function CheckoutPage() {
         <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
       )}
 
-      {!loadingProduct && !error && product && (
+      {!loadingProduct && !error && hasItems && (
         <section className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 overflow-hidden">
-          <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-            <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">{product.name}</h2>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{product.description}</p>
-            <p className="text-sm text-neutral-900 dark:text-neutral-100 mt-3">
-              Requires <span className="font-semibold">{product.requiredCoins}</span> {product.requiredCoins === 1 ? 'Coin' : 'Coins'}
-            </p>
-          </div>
+          {productId ? (
+            <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">{product?.name}</h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{product?.description}</p>
+              <p className="text-sm text-neutral-900 dark:text-neutral-100 mt-3">
+                Requires <span className="font-semibold">{product?.requiredCoins}</span> {product?.requiredCoins === 1 ? 'Coin' : 'Coins'}
+              </p>
+            </div>
+          ) : (
+            <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
+              <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">Order Summary</h2>
+              <ul className="mt-3 space-y-2">
+                {cartItems.map((p) => (
+                  <li key={p.productId} className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-900 dark:text-neutral-100">{p.name}</span>
+                    <span className="text-neutral-600 dark:text-neutral-400">{p.requiredCoins} {p.requiredCoins === 1 ? 'Coin' : 'Coins'}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 text-sm">
+                <span className="text-neutral-600 dark:text-neutral-400 mr-1">Total:</span>
+                <span className="font-medium">{totalRequiredCoins}</span>
+                <span className="ml-1">{totalRequiredCoins === 1 ? 'Coin' : 'Coins'}</span>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={onSubmit} className="p-6 grid grid-cols-1 gap-4">
             <div>
@@ -130,13 +158,13 @@ function CheckoutPage() {
               <input
                 id="coinCount"
                 type="number"
-                min={1}
+                min={minRequired || 1}
                 value={coinCount}
                 onChange={(e) => setCoinCount(parseInt(e.target.value || '0', 10))}
                 className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 required
               />
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Minimum required: {product.requiredCoins}</p>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Minimum required: {minRequired}</p>
             </div>
 
             <div className="pt-2">
@@ -150,6 +178,13 @@ function CheckoutPage() {
             </div>
           </form>
         </section>
+      )}
+
+      {!loadingProduct && !error && !hasItems && (
+        <div className="text-sm text-neutral-600 dark:text-neutral-400">
+          Your cart is empty.{' '}
+          <Link to="/" className="text-blue-600 hover:underline">Continue shopping</Link>.
+        </div>
       )}
     </main>
   )

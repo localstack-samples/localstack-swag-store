@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getProduct, type Product } from '../lib/api'
+import { useCart } from '../context/CartContext'
+import { toast } from 'sonner'
 
 function ProductPage() {
   const { productId } = useParams<{ productId: string }>()
@@ -74,13 +76,14 @@ function ProductPage() {
               <div className="text-neutral-600 dark:text-neutral-400 mt-1">In stock: {product.stock}</div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex items-center gap-3">
               <Link
                 to={`/checkout/${product.productId}`}
                 className="inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 Redeem / Checkout
               </Link>
+              <AddToCartButton product={product} />
             </div>
           </div>
         </section>
@@ -90,4 +93,20 @@ function ProductPage() {
 }
 
 export default ProductPage
+
+function AddToCartButton({ product }: { product: Product }) {
+  const { addToCart } = useCart()
+  return (
+    <button
+      onClick={() => {
+        addToCart(product)
+        toast.success('Added to cart', { description: product.name })
+      }}
+      className="inline-flex items-center justify-center rounded-md border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors"
+      type="button"
+    >
+      Add to Cart
+    </button>
+  )
+}
 
