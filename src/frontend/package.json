@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prestart": "node scripts/inject-api-url.mjs",
+    "prebuild": "node scripts/inject-api-url.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3.679.0",
     "@heroicons/react": "^2.2.0",
     "axios": "^1.12.2",
     "react": "^19.1.1",

@@ -60,6 +60,11 @@ deploy:			## Deploy all CDK stacks to LocalStack
 	cd cdk && cdklocal deploy --all --require-approval never
 	@echo "CDK stacks deployed!"
 
+deploy-frontend:		## Deploy the frontend CDK stack to LocalStack
+	@echo "Deploying frontend CDK stack..."
+	cd cdk && cdklocal deploy SwagStoreMainStack/Frontend -c includeFrontend=true --require-approval never
+	@echo "Frontend CDK stack deployed!"
+
 seed:			## Seed the products table with sample data
 	@echo "Seeding products..."
 	npm run seed
