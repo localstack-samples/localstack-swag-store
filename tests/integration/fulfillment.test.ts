@@ -1,5 +1,7 @@
 import { createOrder, waitForOrderStatus, getProductStock, fulfillOrder } from './lib/test-utils';
+import axios from 'axios';
 
+const LOCALSTACK_SES_URL = process.env.LOCALSTACK_SES_URL || 'http://localhost.localstack.cloud:4566/_aws/ses';
 const PRODUCT_ID = 'p-sticker-pack-1';
 
 describe('Admin Fulfillment', () => {
@@ -26,6 +28,27 @@ describe('Admin Fulfillment', () => {
 
     const afterStock = await getProductStock(PRODUCT_ID);
     expect(afterStock).toBe(beforeStock! - 1);
+  });
+
+  test('Emails: placed sent before, ready sent only after fulfillment', async () => {
+    // Fetch SES messages after order placed & before fulfillment
+    const sesBefore = await axios.get(LOCALSTACK_SES_URL);
+    const msgsBefore: any[] = (sesBefore.data?.messages || []).filter((m: any) => typeof m?.Subject === 'string' && (m.Subject as string).includes(`#${orderId}`));
+    const placed = msgsBefore.find((m) => (m.Subject as string)?.includes('has been placed!'));
+    const readyBefore = msgsBefore.find((m) => (m.Subject as string)?.includes('is ready for pickup!'));
+    expect(placed).toBeTruthy();
+    expect(readyBefore).toBeFalsy();
+
+    // Fulfill now
+    const res = await fulfillOrder(orderId);
+    expect(res.status).toBe(200);
+    await waitForOrderStatus(orderId, 'FULFILLED', 10000);
+
+    // Fetch SES messages again and assert ready email exists now
+    const sesAfter = await axios.get(LOCALSTACK_SES_URL);
+    const msgsAfter: any[] = (sesAfter.data?.messages || []).filter((m: any) => typeof m?.Subject === 'string' && (m.Subject as string).includes(`#${orderId}`));
+    const readyAfter = msgsAfter.find((m) => (m.Subject as string)?.includes('is ready for pickup!'));
+    expect(readyAfter).toBeTruthy();
   });
 
   test('Double fulfillment returns 409', async () => {

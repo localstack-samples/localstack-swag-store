@@ -1,12 +1,15 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { SFNClient, StartExecutionCommand } from '@aws-sdk/client-sfn';
 
 const ORDERS_TABLE = process.env.ORDERS_TABLE || 'orders';
 const PRODUCTS_TABLE = process.env.PRODUCTS_TABLE || 'products';
+const EMAIL_STATE_MACHINE_ARN = process.env.EMAIL_STATE_MACHINE_ARN || '';
 const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
 
 const ddb = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(ddb);
+const sfn = new SFNClient({ region });
 
 export const handler = async (event: any) => {
   try {
@@ -81,6 +84,18 @@ export const handler = async (event: any) => {
     });
 
     await docClient.send(new TransactWriteCommand({ TransactItems }));
+
+    if (EMAIL_STATE_MACHINE_ARN) {
+      const input = {
+        toAddress: [order.attendeeEmail],
+        subject: `Your LocalStack Swag Order #${order.orderId} is ready for pickup!`,
+        htmlBody: `<h1>Great news, ${order.attendeeName}!</h1><p>Your order is now ready. Please come to the LocalStack booth and show this order ID to a team member to collect your swag.</p>`,
+      };
+      sfn.send(new StartExecutionCommand({
+        stateMachineArn: EMAIL_STATE_MACHINE_ARN,
+        input: JSON.stringify(input),
+      })).catch((e) => console.warn('Failed to start email state machine:', e?.message || e));
+    }
 
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true, newStatus: 'FULFILLED' }) };
   } catch (err: any) {

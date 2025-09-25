@@ -110,11 +110,13 @@ export class ApiStack extends Construct {
       environment: {
         ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
         PRODUCTS_TABLE: props.productsTable.tableName,
+        EMAIL_STATE_MACHINE_ARN: props.notificationStateMachine ? props.notificationStateMachine.stateMachineArn : '',
       },
       timeout: Duration.seconds(15),
     });
     if (props.ordersTable) props.ordersTable.grantReadWriteData(fulfillOrderLambda);
     props.productsTable.grantReadWriteData(fulfillOrderLambda);
+    if (props.notificationStateMachine) props.notificationStateMachine.grantStartExecution(fulfillOrderLambda);
     fulfill.addMethod('POST', new apigw.LambdaIntegration(fulfillOrderLambda));
 
     const inventory = admin.addResource('inventory');
