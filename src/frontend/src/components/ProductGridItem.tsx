@@ -11,13 +11,17 @@ function formatCoins(requiredCoins: number): string {
 }
 
 function ProductGridItem({ product }: ProductGridItemProps) {
+  const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
+  const imageUrl = imageBaseUrl && imageBaseUrl.trim().length > 0
+    ? `${imageBaseUrl}${product.productId}.jpg`
+    : 'https://placehold.co/600x600/EEE/31343C'
   return (
     <li>
       <Link to={`/product/${product.productId}`} className="block group">
         <div className="relative border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 transition-colors group-hover:border-blue-600 bg-white dark:bg-neutral-950">
           <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
             <img
-              src="https://placehold.co/600x600/EEE/31343C"
+              src={imageUrl}
               alt={product.name}
               className="w-full h-full object-cover"
               loading="lazy"

@@ -57,11 +57,19 @@ function ProductPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
             <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
+              {(() => {
+                const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
+                const src = imageBaseUrl && imageBaseUrl.trim().length > 0
+                  ? `${imageBaseUrl}${product.productId}.jpg`
+                  : 'https://placehold.co/800x800/EEE/31343C'
+                return (
               <img
-                src="https://placehold.co/800x800/EEE/31343C"
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+                  src={src}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+                )
+              })()}
             </div>
           </div>
 
