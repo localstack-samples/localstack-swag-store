@@ -4,18 +4,22 @@ import { DataStack } from './data-stack';
 import { MessagingStack } from './messaging-stack';
 import { ApiStack } from './api-stack';
 import { NotificationsStack } from './notifications-stack';
+import { AssetsStack } from './assets-stack';
 
 export class MainStack extends cdk.Stack {
   public readonly data: DataStack;
   public readonly messaging: MessagingStack;
   public readonly api: ApiStack;
   public readonly notifications: NotificationsStack;
+  public readonly assets: AssetsStack;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     this.data = new DataStack(this, 'Data');
     this.notifications = new NotificationsStack(this, 'Notifications');
+
+    this.assets = new AssetsStack(this, 'Assets');
 
     this.messaging = new MessagingStack(this, 'Messaging', {
       ordersTable: this.data.ordersTable,
@@ -34,6 +38,10 @@ export class MainStack extends cdk.Stack {
     // Wire state machine ARN to lambdas via environment variables
     this.api.node.children.forEach((child) => {
       // No-op here; environment is set inside ApiStack
+    });
+
+    new cdk.CfnOutput(this, 'ImageBucketWebsiteUrl', {
+      value: this.assets.imageBucket.bucketWebsiteUrl,
     });
 
   }
