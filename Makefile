@@ -52,17 +52,17 @@ build:			## Build the CDK app
 
 bootstrap:		## Bootstrap CDK for LocalStack
 	@echo "Bootstrapping CDK..."
-	cd cdk && cdklocal bootstrap
+	cd cdk && npm run build && cdklocal bootstrap
 	@echo "CDK bootstrapped!"
 
 deploy:			## Deploy all CDK stacks to LocalStack
 	@echo "Deploying CDK stacks..."
-	cd cdk && cdklocal deploy --all --require-approval never
+	cd cdk && cdklocal deploy SwagStoreMainStack --require-approval never
 	@echo "CDK stacks deployed!"
 
 deploy-frontend:		## Deploy the frontend CDK stack to LocalStack
 	@echo "Deploying frontend CDK stack..."
-	cd cdk && cdklocal deploy SwagStoreMainStack/Frontend -c includeFrontend=true --require-approval never
+	cd cdk && cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
 	@echo "Frontend CDK stack deployed!"
 
 seed:			## Seed the products table with sample data

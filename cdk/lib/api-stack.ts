@@ -1,4 +1,4 @@
-import { Duration, Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Duration, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -8,18 +8,18 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 
-interface ApiStackProps extends StackProps {
+interface ApiStackProps {
   productsTable: dynamodb.ITable;
   ordersTable?: dynamodb.ITable;
   orderQueue?: sqs.IQueue;
   notificationStateMachine?: sfn.IStateMachine;
 }
 
-export class ApiStack extends Stack {
+export class ApiStack extends Construct {
   public readonly restApi: apigw.RestApi;
 
   constructor(scope: Construct, id: string, props: ApiStackProps) {
-    super(scope, id, props);
+    super(scope, id);
 
     this.restApi = new apigw.RestApi(this, 'SwagStoreApi', {
       restApiName: 'LocalStack Swag Store API',

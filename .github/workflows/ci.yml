@@ -59,10 +59,15 @@ jobs:
         run: |
           cdklocal bootstrap
 
-      - name: Deploy CDK stacks to LocalStack
+      - name: Deploy SwagStoreMainStack to LocalStack
         working-directory: cdk
         run: |
-          cdklocal deploy --all --require-approval never
+          cdklocal deploy SwagStoreMainStack --require-approval never
+
+      - name: Deploy SwagStoreFrontendStack to LocalStack
+        working-directory: cdk
+        run: |
+          cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
 
       - name: Seed products data
         env:
