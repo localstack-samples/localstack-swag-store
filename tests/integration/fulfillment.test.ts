@@ -44,10 +44,17 @@ describe('Admin Fulfillment', () => {
     expect(res.status).toBe(200);
     await waitForOrderStatus(orderId, 'FULFILLED', 10000);
 
-    // Fetch SES messages again and assert ready email exists now
-    const sesAfter = await axios.get(LOCALSTACK_SES_URL);
-    const msgsAfter: any[] = (sesAfter.data?.messages || []).filter((m: any) => typeof m?.Subject === 'string' && (m.Subject as string).includes(`#${orderId}`));
-    const readyAfter = msgsAfter.find((m) => (m.Subject as string)?.includes('is ready for pickup!'));
+    const deadline = Date.now() + 60000;
+    let readyAfter: any | undefined;
+    while (Date.now() < deadline) {
+      const sesAfter = await axios.get(LOCALSTACK_SES_URL);
+      const msgsAfter: any[] = (sesAfter.data?.messages || []).filter(
+        (m: any) => typeof m?.Subject === 'string' && (m.Subject as string).includes(`#${orderId}`)
+      );
+      readyAfter = msgsAfter.find((m) => (m.Subject as string)?.includes('is ready for pickup!'));
+      if (readyAfter) break;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
     expect(readyAfter).toBeTruthy();
   });
 

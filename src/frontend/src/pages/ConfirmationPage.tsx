@@ -8,6 +8,8 @@ function statusClasses(status?: OrderStatus): string {
       return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
     case 'FULFILLED':
       return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
+    case 'REJECTED':
+      return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
     case 'FAILED_INSUFFICIENT_COINS':
       return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
     default:

@@ -20,6 +20,7 @@ export type OrderStatus =
   | 'PENDING_VERIFICATION'
   | 'FULFILLED'
   | 'FAILED_INSUFFICIENT_COINS'
+  | 'REJECTED'
   | string
 
 export type Order = {
@@ -117,6 +118,20 @@ export async function setInventory(productId: string, quantity: number): Promise
     headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
   })
   return data
+}
+
+export async function rejectOrder(orderId: string, reason?: string): Promise<any> {
+  ensureBaseUrl()
+  const { data } = await api.post('/admin/orders/reject', JSON.stringify({ orderId, reason }), {
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+  })
+  return data
+}
+
+export async function getAdminStats(): Promise<{ ordersPlaced: number; statusCounts: Record<string, number>; inventory: Record<string, number> }> {
+  ensureBaseUrl()
+  const { data } = await api.get('/admin/stats')
+  return data as any
 }
 
 

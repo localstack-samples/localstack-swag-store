@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fulfillOrder, getAdminOrders, getProducts, type Order, type Product } from '../lib/api'
+import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, type Order, type Product } from '../lib/api'
 
 function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -7,21 +7,25 @@ function AdminPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [fulfilling, setFulfilling] = useState<Set<string>>(new Set())
+  const [rejecting, setRejecting] = useState<Set<string>>(new Set())
   const [fulfilledOrders, setFulfilledOrders] = useState<Order[]>([])
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     let mounted = true
     async function load() {
       try {
-        const [prods, ords, fulfilled] = await Promise.all([
+        const [prods, ords, fulfilled, stats] = await Promise.all([
           getProducts(),
           getAdminOrders('PENDING_VERIFICATION'),
           getAdminOrders('FULFILLED'),
+          getAdminStats().catch(() => null as any),
         ])
         if (!mounted) return
         setProducts(prods)
         setOrders(ords)
         setFulfilledOrders(fulfilled)
+        if (stats?.statusCounts) setStatusCounts(stats.statusCounts)
       } catch (err: any) {
         if (!mounted) return
         setError(err?.message || 'Failed to load admin data')
@@ -72,6 +76,27 @@ function AdminPage() {
     }
   }
 
+  async function onReject(orderId: string) {
+    if (rejecting.has(orderId) || fulfilling.has(orderId)) return
+    const next = new Set(rejecting)
+    next.add(orderId)
+    setRejecting(next)
+    try {
+      await rejectOrder(orderId)
+      setOrders((prev) => prev.filter((o) => o.orderId !== orderId))
+      // refresh counts
+      getAdminStats().then((s) => s?.statusCounts && setStatusCounts(s.statusCounts)).catch(() => {})
+    } catch (err) {
+      // silent
+    } finally {
+      setRejecting((prev) => {
+        const copy = new Set(prev)
+        copy.delete(orderId)
+        return copy
+      })
+    }
+  }
+
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <header className="mb-8">
@@ -93,6 +118,10 @@ function AdminPage() {
           <div className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4">
             <div className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400">Fulfilled Orders</div>
             <div className="mt-1 text-2xl font-semibold">{stats.fulfilledCount}</div>
+          </div>
+          <div className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4">
+            <div className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400">Rejected Orders</div>
+            <div className="mt-1 text-2xl font-semibold">{statusCounts.REJECTED || 0}</div>
           </div>
         </section>
       )}
@@ -151,6 +180,7 @@ function AdminPage() {
             const claimedCoinCount = (order as any).claimedCoinCount ?? (order as any).coinCount ?? 0
 
             const isBusy = fulfilling.has(order.orderId)
+            const isRejecting = rejecting.has(order.orderId)
 
             return (
               <li key={order.orderId} className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4">
@@ -158,6 +188,7 @@ function AdminPage() {
                   <div className="min-w-0">
                     <div className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400">Order ID</div>
                     <div className="font-mono text-sm break-all">{order.orderId}</div>
+                    <div className="mt-1">Status: <span className="font-medium">{order.status}</span></div>
 
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                       <div>
@@ -174,13 +205,20 @@ function AdminPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <button
                       onClick={() => onFulfill(order.orderId)}
-                      disabled={isBusy}
+                      disabled={isBusy || isRejecting}
                       className="inline-flex items-center justify-center rounded-md bg-green-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 transition-colors"
                     >
                       {isBusy ? 'Fulfilling…' : 'Fulfill Order'}
+                    </button>
+                    <button
+                      onClick={() => onReject(order.orderId)}
+                      disabled={isBusy || isRejecting}
+                      className="inline-flex items-center justify-center rounded-md bg-red-600 text-white px-3 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 transition-colors"
+                    >
+                      {isRejecting ? 'Rejecting…' : 'Reject'}
                     </button>
                   </div>
                 </div>
