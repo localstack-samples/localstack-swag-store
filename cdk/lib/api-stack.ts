@@ -119,6 +119,21 @@ export class ApiStack extends Construct {
     if (props.notificationStateMachine) props.notificationStateMachine.grantStartExecution(fulfillOrderLambda);
     fulfill.addMethod('POST', new apigw.LambdaIntegration(fulfillOrderLambda));
 
+    const reject = adminOrders.addResource('reject');
+    const rejectOrderLambda = new NodejsFunction(this, 'RejectOrderLambda', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'reject-order', 'index.ts'),
+      handler: 'handler',
+      environment: {
+        ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
+        EMAIL_STATE_MACHINE_ARN: props.notificationStateMachine ? props.notificationStateMachine.stateMachineArn : '',
+      },
+      timeout: Duration.seconds(10),
+    });
+    if (props.ordersTable) props.ordersTable.grantReadWriteData(rejectOrderLambda);
+    if (props.notificationStateMachine) props.notificationStateMachine.grantStartExecution(rejectOrderLambda);
+    reject.addMethod('POST', new apigw.LambdaIntegration(rejectOrderLambda));
+
     const inventory = admin.addResource('inventory');
     const adjust = inventory.addResource('adjust');
     const adjustInventoryLambda = new NodejsFunction(this, 'AdjustInventoryLambda', {

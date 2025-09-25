@@ -58,6 +58,33 @@ describe('Admin Fulfillment', () => {
     expect(second.status).toBe(409);
   });
 
+  test('Admin can reject a pending order and email is sent', async () => {
+    const { data } = await createOrder({
+      name: 'Reject User',
+      email: 'reject@example.com',
+      items: [{ productId: PRODUCT_ID, quantity: 1 }],
+      coinCount: 1,
+    })
+    const rejectOrderId = data.orderId
+    await waitForOrderStatus(rejectOrderId, 'PENDING_VERIFICATION')
+
+    // Reject
+    const res = await axios.post(`${process.env.API_URL}/admin/orders/reject`, { orderId: rejectOrderId })
+    expect([200, 409]).toContain(res.status)
+
+    // Verify status becomes REJECTED (if 200)
+    if (res.status === 200) {
+      const rej = await waitForOrderStatus(rejectOrderId, 'REJECTED', 10000)
+      expect(rej.status).toBe('REJECTED')
+    }
+
+    // Check SES has a rejected email for this order
+    const ses = await axios.get(LOCALSTACK_SES_URL)
+    const msgs: any[] = (ses.data?.messages || []).filter((m: any) => typeof m?.Subject === 'string' && (m.Subject as string).includes(`#${rejectOrderId}`))
+    const rejectedEmail = msgs.find((m) => (m.Subject as string)?.includes('was rejected'))
+    expect(rejectedEmail).toBeTruthy()
+  })
+
   test('Fulfilling in wrong state (PLACED) returns 409', async () => {
     const { data } = await createOrder({
       name: 'Wrong State',
