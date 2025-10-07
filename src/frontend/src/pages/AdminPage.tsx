@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, type Order, type Product } from '../lib/api'
+import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, setInventory, type Order, type Product } from '../lib/api'
 
 function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -10,6 +10,9 @@ function AdminPage() {
   const [rejecting, setRejecting] = useState<Set<string>>(new Set())
   const [fulfilledOrders, setFulfilledOrders] = useState<Order[]>([])
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
+  const [editingProduct, setEditingProduct] = useState<string | null>(null)
+  const [editStockValue, setEditStockValue] = useState<string>('')
+  const [updating, setUpdating] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     let mounted = true
@@ -97,6 +100,56 @@ function AdminPage() {
     }
   }
 
+  function onEditProduct(productId: string, currentStock: number) {
+    setEditingProduct(productId)
+    setEditStockValue(currentStock.toString())
+  }
+
+  function onCancelEdit() {
+    setEditingProduct(null)
+    setEditStockValue('')
+  }
+
+  async function onUpdateInventory(productId: string) {
+    if (updating.has(productId)) return
+    
+    const newStock = parseInt(editStockValue, 10)
+    if (isNaN(newStock) || newStock < 0) {
+      // TODO: Add proper error handling/validation
+      return
+    }
+
+    const next = new Set(updating)
+    next.add(productId)
+    setUpdating(next)
+    
+    try {
+      // Call the actual API endpoint
+      await setInventory(productId, newStock)
+      
+      // Update local state
+      setProducts((prev) => 
+        prev.map(p => 
+          p.productId === productId 
+            ? { ...p, stock: newStock }
+            : p
+        )
+      )
+      
+      // Exit edit mode
+      onCancelEdit()
+    } catch (err) {
+      console.error('Failed to update inventory:', err)
+      // TODO: Add user-facing error notification
+    } finally {
+      setUpdating((prev) => {
+        const copy = new Set(prev)
+        copy.delete(productId)
+        return copy
+      })
+    }
+  }
+
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <header className="mb-8">
@@ -136,16 +189,62 @@ function AdminPage() {
                   <th className="px-4 py-3">Product</th>
                   <th className="px-4 py-3">Required Coins</th>
                   <th className="px-4 py-3">Stock Remaining</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {sortedProducts.map((p) => (
-                  <tr key={p.productId} className="border-t border-neutral-200 dark:border-neutral-800">
-                    <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{p.name}</td>
-                    <td className="px-4 py-3">{p.requiredCoins}</td>
-                    <td className="px-4 py-3">{p.stock}</td>
-                  </tr>
-                ))}
+                {sortedProducts.map((p) => {
+                  const isEditing = editingProduct === p.productId
+                  const isUpdating = updating.has(p.productId)
+                  
+                  return (
+                    <tr key={p.productId} className="border-t border-neutral-200 dark:border-neutral-800">
+                      <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{p.name}</td>
+                      <td className="px-4 py-3">{p.requiredCoins}</td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0"
+                            value={editStockValue}
+                            onChange={(e) => setEditStockValue(e.target.value)}
+                            className="w-20 px-2 py-1 text-sm border rounded border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={isUpdating}
+                          />
+                        ) : (
+                          p.stock
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {isEditing ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => onUpdateInventory(p.productId)}
+                              disabled={isUpdating}
+                              className="inline-flex items-center justify-center rounded-md bg-green-600 text-white px-3 py-1.5 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 transition-colors"
+                            >
+                              {isUpdating ? 'Updating...' : 'Update'}
+                            </button>
+                            <button
+                              onClick={onCancelEdit}
+                              disabled={isUpdating}
+                              className="inline-flex items-center justify-center rounded-md bg-gray-600 text-white px-3 py-1.5 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => onEditProduct(p.productId, p.stock || 0)}
+                            className="inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition-colors"
+                          >
+                            Edit Inventory
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
