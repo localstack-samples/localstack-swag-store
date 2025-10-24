@@ -12,6 +12,22 @@ function formatCoins(requiredCoins: number): string {
   return `Requires ${requiredCoins} ${unit}`
 }
 
+function renderCoins(count: number) {
+  return (
+    <div className="flex items-center">
+      {Array.from({ length: count }, (_, index) => (
+        <img
+          key={index}
+          src="/images/coin.svg"
+          alt="Coin"
+          className="w-4 h-4 -ml-2 first:ml-0"
+          style={{ zIndex: index + 1 }}
+        />
+      ))}
+    </div>
+  )
+}
+
 function ProductGridItem({ product }: ProductGridItemProps) {
   const { addToCart } = useCart()
   const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
@@ -28,7 +44,7 @@ function ProductGridItem({ product }: ProductGridItemProps) {
 
   return (
     <li>
-      <div className="relative border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 transition-colors hover:border-blue-600 bg-white dark:bg-neutral-950">
+      <div className="relative border rounded-xl overflow-hidden border-zinc-800 transition-colors hover:border-blue-600 text-white">
         <Link to={`/product/${product.productId}`} className="block">
           <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
             <img
@@ -39,26 +55,29 @@ function ProductGridItem({ product }: ProductGridItemProps) {
             />
           </div>
           <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate mr-3">
+            <div className="mb-3 text-left">
+              <h3 className="text-lg font-medium text-slate-200 mb-1">
                 {product.name}
               </h3>
-              <span className="text-xs text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
-                {formatCoins(product.requiredCoins)}
-              </span>
+              <div className="flex items-center gap-2">
+                {renderCoins(product.requiredCoins)}
+                <span className="text-md text-violet-500">
+                  {formatCoins(product.requiredCoins)}
+                </span>
+              </div>
             </div>
           </div>
         </Link>
         <div className="px-4 pb-4 flex gap-2">
           <Link
             to={`/checkout/${product.productId}`}
-            className="flex-1 inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-3 py-2 text-xs font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 inline-flex items-center justify-center rounded-md bg-violet-500 text-white px-3 py-2 text-xs font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border transition-colors"
           >
             Redeem
           </Link>
           <button
             onClick={handleAddToCart}
-            className="flex-1 inline-flex items-center justify-center rounded-md border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors"
+            className="flex-1 inline-flex items-center justify-center rounded-md border border-violet-500 px-3 py-2 text-xs font-medium hover:bg-violet-500 hover:text-white transition-colors"
             type="button"
           >
             Add to Cart
