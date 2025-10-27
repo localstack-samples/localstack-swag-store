@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { getProduct, type Product } from '../lib/api'
 import { useCart } from '../context/CartContext'
 import { toast } from 'sonner'
+import CoinDisplay from '../components/CoinDisplay'
 
 function ProductPage() {
   const { productId } = useParams<{ productId: string }>()
@@ -41,12 +42,9 @@ function ProductPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Product</h1>
-      </header>
 
       {loading && (
-        <div className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</div>
+        <div className="text-sm text-slate-200">Loading…</div>
       )}
 
       {!loading && error && (
@@ -73,23 +71,21 @@ function ProductPage() {
             </div>
           </div>
 
-          <div>
-            <h2 className="text-xl font-medium text-neutral-900 dark:text-neutral-100">{product.name}</h2>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">{product.description}</p>
+          <div className="text-left">
+            <h2 className="text-4xl font-medium text-slate-200">{product.name}</h2>
+            <p className="text-lg text-zinc-400 mt-2">{product.description}</p>
 
-            <div className="mt-4 text-sm">
-              <div className="text-neutral-900 dark:text-neutral-100">
-                Requires <span className="font-semibold">{product.requiredCoins}</span> {product.requiredCoins === 1 ? 'Coin' : 'Coins'}
-              </div>
-              <div className="text-neutral-600 dark:text-neutral-400 mt-1">In stock: {product.stock}</div>
+            <div className="mt-4 text-lg">
+              <CoinDisplay count={product.requiredCoins} />
+              <div className="text-lg text-zinc-400 mt-1">In stock: {product.stock}</div>
             </div>
 
             <div className="mt-6 flex items-center gap-3">
               <Link
                 to={`/checkout/${product.productId}`}
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center rounded-md bg-violet-500 border border-violet-500 text-white px-4 py-2 text-sm font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border"
               >
-                Redeem / Checkout
+                Redeem
               </Link>
               <AddToCartButton product={product} />
             </div>
@@ -110,7 +106,7 @@ function AddToCartButton({ product }: { product: Product }) {
         addToCart(product)
         toast.success('Added to cart', { description: product.name })
       }}
-      className="inline-flex items-center justify-center rounded-md border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors"
+      className="inline-flex items-center justify-center rounded-md border border-violet-500 px-4 py-2 text-sm font-medium hover:bg-violet-500 hover:text-white"
       type="button"
     >
       Add to Cart

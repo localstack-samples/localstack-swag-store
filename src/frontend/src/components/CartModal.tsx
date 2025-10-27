@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import CoinDisplay from '../components/CoinDisplay'
 
 type CartModalProps = {
   open: boolean
@@ -12,27 +13,27 @@ function CartModal({ open, onClose }: CartModalProps) {
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <aside className="absolute right-0 top-0 h-full w-full sm:w-[28rem] bg-white dark:bg-neutral-950 border-l border-neutral-200 dark:border-neutral-800 shadow-xl">
-        <div className="h-14 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800">
-          <h2 className="text-sm font-medium">Your Cart</h2>
-          <button onClick={onClose} className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">Close</button>
+      <div className="absolute inset-0" onClick={onClose} />
+      <aside className="absolute right-0 top-0 h-full w-full sm:w-[28rem] bg-zinc-900 border border-zinc-700">
+        <div className="h-14 flex items-center justify-between px-4 border-b border-zinc-700">
+          <h2 className="text-lg font-medium text-slate-200">Your Cart</h2>
+          <button onClick={onClose} className="text-sm text-violet-500 hover:text-violet-700 cursor-pointer">Close</button>
         </div>
 
         <div className="p-4 h-[calc(100%-7.5rem)] overflow-y-auto">
           {cartItems.length === 0 ? (
-            <div className="text-sm text-neutral-600 dark:text-neutral-400">Your cart is empty.</div>
+            <div className="text-sm text-slate-200">Your cart is empty.</div>
           ) : (
             <ul className="space-y-3">
               {cartItems.map((item) => (
-                <li key={item.productId} className="flex items-center justify-between border rounded-lg border-neutral-200 dark:border-neutral-800 p-3">
+                <li key={item.productId} className="flex items-center justify-between border rounded-lg border-violet-500 p-3">
                   <div>
-                    <div className="text-sm font-medium">{item.name}</div>
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400">Requires {item.requiredCoins} {item.requiredCoins === 1 ? 'Coin' : 'Coins'}</div>
+                    <div className="text-md font-medium text-slate-200">{item.name}</div>
+                    <CoinDisplay count={item.requiredCoins} />
                   </div>
                   <button
                     onClick={() => removeFromCart(item.productId)}
-                    className="text-xs text-red-600 hover:text-red-700"
+                    className="text-xs text-violet-500 hover:text-violet-700 cursor-pointer"
                   >
                     Remove
                   </button>
@@ -42,26 +43,26 @@ function CartModal({ open, onClose }: CartModalProps) {
           )}
         </div>
 
-        <div className="h-[3.5rem] flex items-center justify-between px-4 border-t border-neutral-200 dark:border-neutral-800">
-          <div className="text-sm">
-            <span className="text-neutral-600 dark:text-neutral-400 mr-1">Total:</span>
+        <div className="h-[3.5rem] flex items-center justify-between px-4 border-t border-zinc-700">
+          <div className="text-md">
+            <span className="text-slate-200 mr-1">Total:</span>
             <span className="font-medium">{totalRequiredCoins}</span>
-            <span className="ml-1">{totalRequiredCoins === 1 ? 'Coin' : 'Coins'}</span>
+            <span className="ml-1 font-medium">{totalRequiredCoins === 1 ? 'Coin' : 'Coins'}</span>
           </div>
 
           {cartItems.length > 0 ? (
             <div className="flex items-center gap-2">
-              <button onClick={clearCart} className="text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">Clear</button>
+              <button onClick={clearCart} className="text-sm text-violet-500 hover:text-violet-700 cursor-pointer">Clear</button>
               <Link
                 to="/checkout"
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-3 py-1.5 text-xs font-medium hover:bg-blue-700"
+                className="inline-flex items-center justify-center rounded-md bg-violet-500 border border-violet-500 px-3 py-1.5 text-sm font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border"
                 onClick={onClose}
               >
                 Proceed to Checkout
               </Link>
             </div>
           ) : (
-            <button disabled className="inline-flex items-center justify-center rounded-md bg-neutral-300 text-neutral-700 px-3 py-1.5 text-xs font-medium opacity-60 cursor-not-allowed">
+            <button disabled className="inline-flex items-center justify-center rounded-md bg-violet-500 border border-violet-500 text-white px-3 py-1.5 text-sm font-medium opacity-60 cursor-not-allowed">
               Proceed to Checkout
             </button>
           )}

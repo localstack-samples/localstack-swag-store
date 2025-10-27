@@ -35,7 +35,7 @@ function HomePage() {
       </header>
 
       {loading && (
-        <div className="text-sm text-neutral-600 dark:text-neutral-400">Loading products…</div>
+        <div className="text-sm text-slate-200">Loading products…</div>
       )}
 
       {!loading && error && (

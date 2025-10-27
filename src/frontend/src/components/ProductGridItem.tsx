@@ -2,31 +2,12 @@ import { Link } from 'react-router-dom'
 import type { Product } from '../lib/api'
 import { useCart } from '../context/CartContext'
 import { toast } from 'sonner'
+import CoinDisplay from './CoinDisplay'
 
 type ProductGridItemProps = {
   product: Product
 }
 
-function formatCoins(requiredCoins: number): string {
-  const unit = requiredCoins === 1 ? 'Coin' : 'Coins'
-  return `Requires ${requiredCoins} ${unit}`
-}
-
-function renderCoins(count: number) {
-  return (
-    <div className="flex items-center">
-      {Array.from({ length: count }, (_, index) => (
-        <img
-          key={index}
-          src="/images/coin.svg"
-          alt="Coin"
-          className="w-4 h-4 -ml-2 first:ml-0"
-          style={{ zIndex: index + 1 }}
-        />
-      ))}
-    </div>
-  )
-}
 
 function ProductGridItem({ product }: ProductGridItemProps) {
   const { addToCart } = useCart()
@@ -46,7 +27,7 @@ function ProductGridItem({ product }: ProductGridItemProps) {
     <li>
       <div className="relative border rounded-xl overflow-hidden border-zinc-800 transition-colors hover:border-blue-600 text-white">
         <Link to={`/product/${product.productId}`} className="block">
-          <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
+          <div className="aspect-square bg-neutral-100">
             <img
               src={imageUrl}
               alt={product.name}
@@ -59,19 +40,14 @@ function ProductGridItem({ product }: ProductGridItemProps) {
               <h3 className="text-lg font-medium text-slate-200 mb-1">
                 {product.name}
               </h3>
-              <div className="flex items-center gap-2">
-                {renderCoins(product.requiredCoins)}
-                <span className="text-md text-violet-500">
-                  {formatCoins(product.requiredCoins)}
-                </span>
-              </div>
+              <CoinDisplay count={product.requiredCoins} />
             </div>
           </div>
         </Link>
         <div className="px-4 pb-4 flex gap-2">
           <Link
             to={`/checkout/${product.productId}`}
-            className="flex-1 inline-flex items-center justify-center rounded-md bg-violet-500 text-white px-3 py-2 text-xs font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border transition-colors"
+            className="flex-1 inline-flex items-center justify-center rounded-md bg-violet-500 border border-violet-500 text-white px-3 py-2 text-xs font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border transition-colors"
           >
             Redeem
           </Link>
