@@ -53,8 +53,8 @@ function ProductPage() {
 
       {!loading && !error && product && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-            <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
+          <div className="border rounded-xl overflow-hidden border-neutral-200">
+            <div className="aspect-square bg-neutral-100">
               {(() => {
                 const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
                 const src = imageBaseUrl && imageBaseUrl.trim().length > 0

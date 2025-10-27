@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { createOrder, getProduct, type Product } from '../lib/api'
 import { useCart } from '../context/CartContext'
+import CoinDisplay from '../components/CoinDisplay'
 
 function CheckoutPage() {
   const { productId } = useParams<{ productId: string }>()
@@ -85,12 +86,12 @@ function CheckoutPage() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Checkout</h1>
+      <header className="mb-8 text-left">
+        <h1 className="text-4xl font-semibold tracking-tight text-slate-200">Your Order</h1>
       </header>
 
       {loadingProduct && (
-        <div className="text-sm text-neutral-600 dark:text-neutral-400">Loading product…</div>
+        <div className="text-sm text-slate-200">Loading product…</div>
       )}
 
       {!loadingProduct && error && (
@@ -98,83 +99,123 @@ function CheckoutPage() {
       )}
 
       {!loadingProduct && !error && hasItems && (
-        <section className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 overflow-hidden">
+        <section className="overflow-hidden">
           {productId ? (
-            <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">{product?.name}</h2>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">{product?.description}</p>
-              <p className="text-sm text-neutral-900 dark:text-neutral-100 mt-3">
-                Requires <span className="font-semibold">{product?.requiredCoins}</span> {product?.requiredCoins === 1 ? 'Coin' : 'Coins'}
-              </p>
+            <div className="p-6 border border-violet-500 rounded-lg">
+              <div className="flex items-start gap-4">
+                <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-neutral-200 flex-shrink-0">
+                  {(() => {
+                    const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
+                    const src = imageBaseUrl && imageBaseUrl.trim().length > 0
+                      ? `${imageBaseUrl}${product?.productId}.jpg`
+                      : 'https://placehold.co/800x800/EEE/31343C'
+                    return (
+                      <img
+                        src={src}
+                        alt={product?.name}
+                        className="w-full h-full object-cover"
+                      />
+                    )
+                  })()}
+                </div>
+                <div className="flex-1 text-left">
+                  <h2 className="text-lg font-medium text-slate-200">{product?.name}</h2>
+                  <p className="text-sm text-zinc-400 mt-1">{product?.description}</p>
+                  <CoinDisplay count={product?.requiredCoins || 0} />
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-              <h2 className="text-lg font-medium text-neutral-900 dark:text-neutral-100">Order Summary</h2>
+            <div className="p-6">
+              <div className="mt-3">
+                 <div className='border border-zinc-600 rounded-lg p-2 my-auto w-1/3 mx-auto text-left'>
+                   <h2 className='text-2xl font-medium text-slate-200'>Coins Needed</h2>
+                   <div className="flex items-center justify-between">
+                     <span className="font-medium text-4xl text-white">{totalRequiredCoins}</span>
+                     <CoinDisplay count={totalRequiredCoins} showText={false} />
+                   </div>
+                 </div>
+              </div>
               <ul className="mt-3 space-y-2">
                 {cartItems.map((p) => (
-                  <li key={p.productId} className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-900 dark:text-neutral-100">{p.name}</span>
-                    <span className="text-neutral-600 dark:text-neutral-400">{p.requiredCoins} {p.requiredCoins === 1 ? 'Coin' : 'Coins'}</span>
+                  <li key={p.productId} className="flex items-start gap-4 text-md border border-violet-500 rounded-lg p-2">
+                    <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex-shrink-0">
+                      {(() => {
+                        const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
+                        const src = imageBaseUrl && imageBaseUrl.trim().length > 0
+                          ? `${imageBaseUrl}${p.productId}.jpg`
+                          : 'https://placehold.co/800x800/EEE/31343C'
+                        return (
+                          <img
+                            src={src}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )
+                      })()}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h2 className="text-lg font-medium text-slate-200">{p.name}</h2>
+                      <p className="text-sm text-zinc-400 mt-1">{p.description}</p>
+                      <CoinDisplay count={p.requiredCoins || 0} />
+                    </div>
                   </li>
                 ))}
               </ul>
-              <div className="mt-3 text-sm">
-                <span className="text-neutral-600 dark:text-neutral-400 mr-1">Total:</span>
-                <span className="font-medium">{totalRequiredCoins}</span>
-                <span className="ml-1">{totalRequiredCoins === 1 ? 'Coin' : 'Coins'}</span>
-              </div>
             </div>
           )}
+          <form onSubmit={onSubmit} className="p-6 grid grid-cols-1 gap-4 text-left">
+            <h2 className='text-2xl font-medium text-slate-200'>Complete Your Order</h2>
+            <div className="border border-zinc-600 rounded-lg p-2 bg-zinc-900 p-6">
+              <div className='mb-4'>
+                <label htmlFor="name" className="block text-md font-medium mb-1 text-white">Name</label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  placeholder="Ada Lovelace"
+                  required
+                />
+              </div>
 
-          <form onSubmit={onSubmit} className="p-6 grid grid-cols-1 gap-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                placeholder="Ada Lovelace"
-                required
-              />
-            </div>
+              <div className='mb-4'>
+                <label htmlFor="email" className="block text-md font-medium mb-1 text-white">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
+              <div className='mb-4'>
+                <label htmlFor="coinCount" className="block text-md font-medium mb-1 text-white">Coins to Spend</label>
+                <input
+                  id="coinCount"
+                  type="number"
+                  min={minRequired || 1}
+                  value={coinCount}
+                  onChange={(e) => setCoinCount(parseInt(e.target.value || '0', 10))}
+                  className="w-full rounded-md border border-zinc-700 bg-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  required
+                />
+                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Minimum required: {minRequired}</p>
+              </div>
 
-            <div>
-              <label htmlFor="coinCount" className="block text-sm font-medium mb-1">Coins to Spend</label>
-              <input
-                id="coinCount"
-                type="number"
-                min={minRequired || 1}
-                value={coinCount}
-                onChange={(e) => setCoinCount(parseInt(e.target.value || '0', 10))}
-                className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                required
-              />
-              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Minimum required: {minRequired}</p>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={!canSubmit || submitting}
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
-              >
-                {submitting ? 'Placing Order…' : 'Place Order'}
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={!canSubmit || submitting}
+                  className="inline-flex items-center justify-center rounded-md bg-violet-500 border border-violet-500 px-3 py-1.5 text-sm font-medium hover:bg-transparent hover:text-violet-500 hover:border-violet-500 hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:border-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-400"
+                >
+                  {submitting ? 'Placing Order…' : 'Place Order'}
+                </button>
+              </div>
             </div>
           </form>
         </section>
