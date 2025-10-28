@@ -10,10 +10,14 @@ function Navbar() {
 
   return (
     <>
-      <nav className="bg-black text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <Link to="/" className="text-sm font-medium tracking-tight">
-            LocalStack Swag Store
+      <nav className="text-white w-full border-b border-zinc-800 bg-zinc-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-66px flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/images/LocalStack_Logo.svg" 
+              alt="LocalStack Swag Store" 
+              className="h-16 w-auto"
+            />
           </Link>
           <button
             aria-label="Open cart"
@@ -22,7 +26,7 @@ function Navbar() {
           >
             <ShoppingCartIcon className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] h-4 min-w-4 px-1">
+              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full bg-violet-500 text-white text-[10px] h-4 min-w-4 px-1">
                 {cartCount}
               </span>
             )}

@@ -1,10 +1,71 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Aeonikpro';
+  src:
+    url('/fonts/AeonikPro/AeonikPro-Regular.woff') format('woff'),
+    url('/fonts/AeonikPro/AeonikPro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonikpro';
+  src:
+    url('/fonts/AeonikPro/AeonikPro-MediumItalic.woff') format('woff'),
+    url('/fonts/AeonikPro/AeonikPro-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonikpro';
+  src:
+    url('/fonts/AeonikPro/AeonikPro-RegularItalic.woff') format('woff'),
+    url('/fonts/AeonikPro/AeonikPro-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonikpro';
+  src:
+    url('/fonts/AeonikPro/AeonikPro-Medium.woff') format('woff') url('/fonts/AeonikPro/AeonikPro-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonikmono';
+  src:
+    url('/fonts/AeonikMono/AeonikMono-Regular.woff') format('woff') url('/fonts/AeonikMono/AeonikMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* App globals */
 :root {
   color-scheme: light dark;
 }
 
-html, body, #root {
+html,
+body,
+#root {
+  --Surfaces-background-page: #101114;
+  --Typeface-family-heading: "Aeonik Pro";
+  --Typeface-size-lg: 24px;
+  --Typeface-line-height-md: 32px;
+  --Typeface-letter-spacing: -0.25px;
   height: 100%;
+  margin: 0 0;
+  text-align: center;
+  background: var(--Surfaces-background-page);
+  color: #FFF;
+  font-family: var(--Typeface-family-heading);
+  font-style: normal;
 }

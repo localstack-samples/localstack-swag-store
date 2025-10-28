@@ -28,16 +28,14 @@ function HomePage() {
   }, [])
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-          LocalStack Swag Store
-        </h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Claim your swag with coins.</p>
+        <img src="/images/banner.png" alt="LocalStack Swag Store" className="w-full h-auto" />
+        <h1 className="text-4xl font-semibold tracking-tight text-white mt-4 mb-4">Claim your swag with coins.</h1>
       </header>
 
       {loading && (
-        <div className="text-sm text-neutral-600 dark:text-neutral-400">Loading products…</div>
+        <div className="text-sm text-slate-200">Loading products…</div>
       )}
 
       {!loading && error && (
