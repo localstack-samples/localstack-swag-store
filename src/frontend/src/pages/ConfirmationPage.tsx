@@ -57,21 +57,21 @@ function ConfirmationPage() {
   }, [order?.status])
 
   return (
-    <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-left">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Order Placed!</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">Please show this ID to a LocalStack team member.</p>
+        <h1 className="text-4xl font-semibold tracking-tight text-white">Order Placed!</h1>
+        <p className="text-sm text-slate-200 mt-2">Please show this ID to a LocalStack team member.</p>
       </header>
 
       {error && <div className="text-sm text-red-600 dark:text-red-400 mb-6">{error}</div>}
 
-      <section className="border rounded-xl border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 overflow-hidden">
+      <section className="border rounded-xl border-zinc-600 overflow-hidden">
         <div className="p-6">
-          <div className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400 mb-1">Order ID</div>
-          <div className="text-xl font-mono break-all">{orderId}</div>
+          <div className="text-sm uppercase tracking-wide text-slate-200 mb-1">Order ID</div>
+          <div className="text-lg font-mono break-all">{orderId}</div>
 
           <div className="mt-6">
-            <div className="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400 mb-1">Current Status</div>
+            <div className="text-xs uppercase tracking-wide text-slate-200 mb-1">Current Status</div>
             {badge}
           </div>
         </div>
