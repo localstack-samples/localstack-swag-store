@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, setInventory, type Order, type Product } from '../lib/api'
+import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, setInventory, type Order, type OrderStatus, type Product } from '../lib/api'
 
 function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([])
