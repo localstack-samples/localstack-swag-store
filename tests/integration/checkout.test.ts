@@ -20,7 +20,7 @@ describe('Checkout Flow', () => {
     const payload = {
       name: 'Test L3',
       email: 'l3@example.com',
-      items: [{ productId: 'p-yeti-cup-1', quantity: 1 }],
+      items: [{ productId: 'p-water-bottle-1', quantity: 1 }],
       coinCount: 3,
     };
     const { data, status } = await createOrder(payload);
@@ -35,7 +35,7 @@ describe('Checkout Flow', () => {
     const payload = {
       name: 'Fail Insuff',
       email: 'fail@example.com',
-      items: [{ productId: 'p-yeti-cup-1', quantity: 1 }],
+      items: [{ productId: 'p-water-bottle-1', quantity: 1 }],
       coinCount: 2,
     };
     const { data, status } = await createOrder(payload);

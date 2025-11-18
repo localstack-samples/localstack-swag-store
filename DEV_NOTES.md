@@ -105,7 +105,7 @@ curl -s "$API_URL/admin/stats" | jq .
 ```bash
 curl -s "$API_URL/orders" \
   -H 'Content-Type: application/json' \
-  -d '{"name":"User A","email":"a@example.com","items":[{"productId":"p-yeti-cup-1","quantity":1}],"coinCount":2}' \
+  -d '{"name":"User A","email":"a@example.com","items":[{"productId":"p-water-bottle-1","quantity":1}],"coinCount":2}' \
   | tee /tmp/order_insufficient.json
 ORDER_INSUFF=$(jq -r '.orderId' /tmp/order_insufficient.json)
 sleep 1

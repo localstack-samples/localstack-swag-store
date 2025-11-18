@@ -16,11 +16,27 @@
     "version": 1
   },
   {
-    "productId": "p-yeti-cup-1",
-    "name": "LocalStack Yeti Tumbler",
-    "description": "Insulated drink tumbler.",
+    "productId": "p-notebook-1",
+    "name": "LocalStack Notebook",
+    "description": "Hardcover dot-grid notebook for planning big builds.",
+    "requiredCoins": 2,
+    "stock": 150,
+    "version": 1
+  },
+  {
+    "productId": "p-tote-bag-1",
+    "name": "LocalStack Tote Bag",
+    "description": "Heavy-duty canvas tote for carrying your cloud gear.",
     "requiredCoins": 3,
-    "stock": 100,
+    "stock": 120,
+    "version": 1
+  },
+  {
+    "productId": "p-water-bottle-1",
+    "name": "LocalStack Water Bottle",
+    "description": "Insulated stainless steel bottle to stay hydrated while coding.",
+    "requiredCoins": 3,
+    "stock": 80,
     "version": 1
   },
   {
