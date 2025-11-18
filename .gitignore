@@ -1,3 +1,6 @@
+# Deployment specific metadata
+.api-id
+
 # Logs
 logs
 *.log

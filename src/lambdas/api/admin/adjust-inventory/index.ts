@@ -12,7 +12,7 @@ export const handler = async (event: any) => {
     const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body || {};
     const { productId, quantity } = body || {};
     if (!productId || typeof quantity !== 'number') {
-      return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'productId and quantity are required' }) };
+      return { statusCode: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'productId and quantity are required' }) };
     }
 
     const res = await docClient.send(new UpdateCommand({
@@ -24,9 +24,9 @@ export const handler = async (event: any) => {
       ReturnValues: 'UPDATED_NEW',
     }));
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productId, newStock: quantity }) };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ productId, newStock: quantity }) };
   } catch (err: any) {
     console.error('Adjust inventory failed:', err?.message || err);
-    return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Adjust inventory failed' }) };
+    return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Adjust inventory failed' }) };
   }
 };

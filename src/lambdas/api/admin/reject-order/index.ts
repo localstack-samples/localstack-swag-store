@@ -15,16 +15,16 @@ export const handler = async (event: any) => {
     const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body || {}
     const { orderId, reason } = body || {}
     if (!orderId) {
-      return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing orderId' }) }
+      return { statusCode: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Missing orderId' }) }
     }
 
     const res = await docClient.send(new GetCommand({ TableName: ORDERS_TABLE, Key: { orderId } }))
     const order = res.Item as any
     if (!order) {
-      return { statusCode: 404, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Order not found' }) }
+      return { statusCode: 404, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Order not found' }) }
     }
     if (order.status !== 'PENDING_VERIFICATION') {
-      return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Order not in PENDING_VERIFICATION' }) }
+      return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Order not in PENDING_VERIFICATION' }) }
     }
 
     await docClient.send(new UpdateCommand({
@@ -49,10 +49,10 @@ export const handler = async (event: any) => {
         .catch((e) => console.warn('Failed to start email state machine (reject):', e?.message || e))
     }
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true, newStatus: 'REJECTED' }) }
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ success: true, newStatus: 'REJECTED' }) }
   } catch (err: any) {
     console.error('Reject failed:', err?.message || err)
-    return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Reject failed' }) }
+    return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Reject failed' }) }
   }
 }
 
