@@ -65,7 +65,7 @@ export class MessagingStack extends Construct {
 
     this.orderWriteFailuresQueue = new sqs.Queue(this, 'OrderWriteFailuresQueue', {
       queueName: 'order-write-failures-queue',
-      visibilityTimeout: cdk.Duration.seconds(30),
+      visibilityTimeout: cdk.Duration.seconds(10),
       deadLetterQueue: {
         queue: orderWriteFailuresDlq,
         maxReceiveCount: 5,
