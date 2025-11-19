@@ -16,21 +16,21 @@ export const handler = async (event: any) => {
     const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body || {};
     const { orderId } = body || {};
     if (!orderId) {
-      return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing orderId' }) };
+      return { statusCode: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Missing orderId' }) };
     }
 
     const orderRes = await docClient.send(new GetCommand({ TableName: ORDERS_TABLE, Key: { orderId } }));
     const order = orderRes.Item;
     if (!order) {
-      return { statusCode: 404, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Order not found' }) };
+      return { statusCode: 404, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Order not found' }) };
     }
     if (order.status !== 'PENDING_VERIFICATION') {
-      return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Order not in PENDING_VERIFICATION' }) };
+      return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Order not in PENDING_VERIFICATION' }) };
     }
 
     const items = Array.isArray(order.items) ? order.items : [];
     if (items.length === 0) {
-      return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Order has no items' }) };
+      return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Order has no items' }) };
     }
 
     // Read all products to capture current version for optimistic locking
@@ -41,7 +41,7 @@ export const handler = async (event: any) => {
       if (products[productId]) continue; // de-dup
       const prodRes = await docClient.send(new GetCommand({ TableName: PRODUCTS_TABLE, Key: { productId } }));
       if (!prodRes.Item) {
-        return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: `Product not found: ${productId}` }) };
+        return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: `Product not found: ${productId}` }) };
       }
       products[productId] = prodRes.Item;
     }
@@ -97,9 +97,9 @@ export const handler = async (event: any) => {
       })).catch((e) => console.warn('Failed to start email state machine:', e?.message || e));
     }
 
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true, newStatus: 'FULFILLED' }) };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ success: true, newStatus: 'FULFILLED' }) };
   } catch (err: any) {
     console.error('Fulfillment failed:', err?.message || err);
-    return { statusCode: 409, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Fulfillment failed. Item may be out of stock or order is in an invalid state.' }) };
+    return { statusCode: 409, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Fulfillment failed. Item may be out of stock or order is in an invalid state.' }) };
   }
 };

@@ -17,9 +17,9 @@ export const handler = async (event: any) => {
       params.ExpressionAttributeValues = { ':s': status };
     }
     const res = await docClient.send(new ScanCommand(params));
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orders: res.Items || [] }) };
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ orders: res.Items || [] }) };
   } catch (err: any) {
     console.error('Error listing orders:', err?.message || err);
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
   }
 };
