@@ -12,7 +12,8 @@
     "rootDir": ".",
     "jsx": "react-jsx"
   },
-  "include": ["tools/**/*.ts", "src/**/*.ts", "infra/**/*.json"]
+  "include": ["tools/**/*.ts", "src/**/*.ts", "infra/**/*.json"],
+  "exclude": ["src/frontend"]
 }
 
 
