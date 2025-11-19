@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { fulfillOrder, getAdminOrders, getProducts, rejectOrder, getAdminStats, setInventory, type Order, type OrderStatus, type Product } from '../lib/api'
 
 function AdminPage() {
@@ -13,6 +13,7 @@ function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null)
   const [editStockValue, setEditStockValue] = useState<string>('')
   const [updating, setUpdating] = useState<Set<string>>(new Set())
+  const [outageDetected, setOutageDetected] = useState<boolean>(false)
 
   function statusClasses(status?: OrderStatus): string {
     switch (status) {
@@ -37,34 +38,33 @@ function AdminPage() {
     )
   }
 
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      try {
-        const [prods, ords, fulfilled, stats] = await Promise.all([
-          getProducts(),
-          getAdminOrders('PENDING_VERIFICATION'),
-          getAdminOrders('FULFILLED'),
-          getAdminStats().catch(() => null as any),
-        ])
-        if (!mounted) return
-        setProducts(prods)
-        setOrders(ords)
-        setFulfilledOrders(fulfilled)
-        if (stats?.statusCounts) setStatusCounts(stats.statusCounts)
-      } catch (err: any) {
-        if (!mounted) return
-        setError(err?.message || 'Failed to load admin data')
-      } finally {
-        if (!mounted) return
-        setLoading(false)
-      }
-    }
-    load()
-    return () => {
-      mounted = false
+  const loadAdminData = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [prods, ords, fulfilled, stats] = await Promise.all([
+        getProducts(),
+        getAdminOrders('PENDING_VERIFICATION'),
+        getAdminOrders('FULFILLED'),
+        getAdminStats().catch(() => null as any),
+      ])
+      setProducts(prods)
+      setOrders(ords)
+      setFulfilledOrders(fulfilled)
+      if (stats?.statusCounts) setStatusCounts(stats.statusCounts)
+      setOutageDetected(false)
+    } catch (err: any) {
+      const message = err?.message || 'Failed to load admin data'
+      setError(message)
+      setOutageDetected(/500|internal server error/i.test(message))
+    } finally {
+      setLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    loadAdminData()
+  }, [loadAdminData])
 
   const productById = useMemo(() => {
     const map = new Map<string, Product>()
@@ -280,7 +280,28 @@ function AdminPage() {
       )}
 
       {!loading && error && (
-        <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+        <div
+          className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+            outageDetected
+              ? 'border-amber-400 bg-amber-50 text-amber-900 dark:border-amber-300 dark:bg-amber-950 dark:text-amber-100'
+              : 'border-red-500 bg-red-50 text-red-900 dark:border-red-600 dark:bg-red-950 dark:text-red-100'
+          }`}
+        >
+          <p className="font-semibold">
+            {outageDetected ? 'Admin data is delayed while DynamoDB recovers.' : 'Failed to load admin data.'}
+          </p>
+          <p className="mt-1 text-sm">
+            {outageDetected
+              ? 'Orders placed right now are safely queued; they will appear here automatically once the database is healthy again.'
+              : error}
+          </p>
+          <button
+            onClick={loadAdminData}
+            className="mt-3 inline-flex items-center justify-center rounded-md border border-current px-3 py-1 text-xs font-medium hover:opacity-80 transition"
+          >
+            Retry now
+          </button>
+        </div>
       )}
 
       {!loading && !error && orders.length === 0 && (

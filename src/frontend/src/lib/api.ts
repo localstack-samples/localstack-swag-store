@@ -21,6 +21,7 @@ export type OrderStatus =
   | 'FULFILLED'
   | 'FAILED_INSUFFICIENT_COINS'
   | 'REJECTED'
+  | 'QUEUED_FOR_RETRY'
   | string
 
 export type Order = {
@@ -77,14 +78,18 @@ export async function getProduct(productId: string): Promise<Product | undefined
   return products.find((p) => p.productId === productId)
 }
 
-export async function createOrder(payload: CreateOrderPayload): Promise<{ orderId: string } & Partial<Order>> {
+export type CreateOrderResponse = ({ orderId: string } & Partial<Order>) & {
+  queuedForRetry?: boolean
+}
+
+export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
   ensureBaseUrl()
   const { data } = await api.post('/orders', JSON.stringify(payload), {
     headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
   })
   // Some backends may return { orderId } or full order
-  if ((data as any)?.orderId) return data as { orderId: string } & Partial<Order>
-  if ((data as any)?.order?.orderId) return (data as any).order as { orderId: string } & Partial<Order>
+  if ((data as any)?.orderId) return data as CreateOrderResponse
+  if ((data as any)?.order?.orderId) return (data as any).order as CreateOrderResponse
   return data as any
 }
 

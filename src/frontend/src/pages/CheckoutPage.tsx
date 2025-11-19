@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { createOrder, getProduct, type Product } from '../lib/api'
 import { useCart } from '../context/CartContext'
 import CoinDisplay from '../components/CoinDisplay'
+import { markOrderQueued } from '../lib/queuedOrders'
 
 function CheckoutPage() {
   const { productId } = useParams<{ productId: string }>()
@@ -72,8 +73,11 @@ function CheckoutPage() {
       })
       const orderId = (res as any)?.orderId
       if (orderId) {
+        if (res.queuedForRetry) {
+          markOrderQueued(orderId)
+        }
         if (!productId) clearCart()
-        navigate(`/order/${orderId}`)
+        navigate(`/order/${orderId}`, { state: { queuedForRetry: Boolean(res.queuedForRetry) } })
       } else {
         throw new Error('Order ID missing in response')
       }
