@@ -13,14 +13,14 @@ export const handler = async () => {
     const products = res.Items || [];
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ products }),
     };
   } catch (err: any) {
     console.error('Error scanning products:', err?.message || err);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ error: 'Internal Server Error' }),
     };
   }

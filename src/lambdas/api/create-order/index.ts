@@ -23,7 +23,7 @@ export const handler = async (event: any) => {
     const { name, email, items, coinCount } = body || {};
 
     if (!name || !email || !Array.isArray(items) || items.length === 0 || typeof coinCount !== 'number') {
-      return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Invalid request body' }) };
+      return { statusCode: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Invalid request body' }) };
     }
 
     const orderId = ulid();
@@ -87,7 +87,7 @@ export const handler = async (event: any) => {
 
     return {
       statusCode: 202,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({
         orderId,
         status: queuedForRetry ? 'QUEUED_FOR_RETRY' : 'PLACED',
@@ -96,6 +96,6 @@ export const handler = async (event: any) => {
     };
   } catch (err: any) {
     console.error('Error creating order:', err?.message || err);
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
   }
 };

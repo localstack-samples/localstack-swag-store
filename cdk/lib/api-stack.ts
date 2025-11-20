@@ -8,6 +8,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import { Cors } from 'aws-cdk-lib/aws-apigateway';
 
 interface ApiStackProps {
   productsTable: dynamodb.ITable;
@@ -26,6 +27,9 @@ export class ApiStack extends Construct {
     this.restApi = new apigw.RestApi(this, 'SwagStoreApi', {
       restApiName: 'LocalStack Swag Store API',
       deployOptions: { stageName: 'v1' },
+      defaultCorsPreflightOptions: {
+        allowOrigins: Cors.ALL_ORIGINS
+      }
     });
 
     const listProductsLambda = new NodejsFunction(this, 'ListProductsLambda', {

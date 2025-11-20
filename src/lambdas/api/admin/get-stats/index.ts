@@ -25,11 +25,11 @@ export const handler = async () => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ ordersPlaced: Object.values(counts).reduce((a, b) => a + b, 0), statusCounts: counts, inventory }),
     };
   } catch (err: any) {
     console.error('Error getting stats:', err?.message || err);
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
   }
 };
