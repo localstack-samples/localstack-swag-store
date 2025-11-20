@@ -8,7 +8,7 @@ import { markOrderQueued } from '../lib/queuedOrders'
 function CheckoutPage() {
   const { productId } = useParams<{ productId: string }>()
   const navigate = useNavigate()
-  const { cartItems, totalRequiredCoins, clearCart } = useCart()
+  const { cartItems, totalRequiredCoins, clearCart, removeFromCart } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loadingProduct, setLoadingProduct] = useState<boolean>(!!productId)
@@ -142,8 +142,17 @@ function CheckoutPage() {
               </div>
               <ul className="mt-3 space-y-2">
                 {cartItems.map((p) => (
-                  <li key={p.productId} className="flex items-start gap-4 text-md border border-violet-500 rounded-lg p-2">
-                    <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-zinc-600 bg-white dark:bg-neutral-950 flex-shrink-0">
+                  <li key={p.productId} className="flex items-start gap-4 text-md border border-violet-500 rounded-lg p-2 relative">
+                    <button
+                      type="button"
+                      title="Remove item"
+                      onClick={() => removeFromCart(p.productId)}
+                      aria-label={`Remove ${p.name} from cart`}
+                      className="absolute top-2 right-2 h-6 w-6 rounded-full border border-transparent text-sm text-zinc-400 flex items-center justify-center hover:text-white hover:border-zinc-600 hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-500 transition-colors cursor-pointer"
+                    >
+                      &times;
+                    </button>
+                    <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex-shrink-0">
                       {(() => {
                         const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
                         const src = imageBaseUrl && imageBaseUrl.trim().length > 0

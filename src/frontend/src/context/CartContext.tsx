@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Product } from '../lib/api'
 
 export type CartItem = Product
@@ -13,6 +13,7 @@ type CartContextValue = {
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined)
+const STORAGE_KEY = 'localstack-swag-cart'
 
 export function useCart(): CartContextValue {
   const ctx = useContext(CartContext)
@@ -21,7 +22,28 @@ export function useCart(): CartContextValue {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (!stored) return []
+      const parsed = JSON.parse(stored)
+      if (!Array.isArray(parsed)) return []
+      return parsed
+    } catch (err) {
+      console.warn('Failed to read cart from storage', err)
+      return []
+    }
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cartItems))
+    } catch (err) {
+      console.warn('Failed to persist cart to storage', err)
+    }
+  }, [cartItems])
 
   function addToCart(product: Product) {
     setCartItems((prev) => {
