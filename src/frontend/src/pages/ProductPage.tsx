@@ -75,9 +75,15 @@ function ProductPage() {
             <h2 className="text-4xl font-medium text-slate-200">{product.name}</h2>
             <p className="text-lg text-zinc-400 mt-2">{product.description}</p>
 
-            <div className="mt-4 text-lg">
-              <CoinDisplay count={product.requiredCoins} />
-              <div className="text-lg text-zinc-400 mt-1">In stock: {product.stock}</div>
+            <div className="mt-4">
+              <div className="border border-zinc-700 rounded-xl px-16 py-8 inline-block">
+                <div className="text-white text-lg mb-2">Coins Needed</div>
+                <div className="flex items-center justify-between gap-8">
+                  <div className="text-7xl font-light text-white">{product.requiredCoins}</div>
+                  <CoinDisplay count={product.requiredCoins} showText={false} coinSize="lg" />
+                </div>
+              </div>
+              <div className="text-lg text-zinc-400 mt-4">In stock: {product.stock}</div>
             </div>
 
             <div className="mt-6 flex items-center gap-3">
