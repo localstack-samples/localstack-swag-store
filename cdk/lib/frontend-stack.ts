@@ -37,6 +37,8 @@ export class FrontendStack extends cdk.Stack {
       ],
     });
 
+    cdk.Tags.of(this.distribution).add('_custom_id_', 'swagapp');
+
     new cdk.CfnOutput(this, 'CloudFrontDomain', {
       value: `https://${this.distribution.domainName}`,
     });
