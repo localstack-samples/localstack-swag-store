@@ -71,3 +71,7 @@ body,
   font-family: var(--Typeface-family-heading);
   font-style: normal;
 }
+
+[data-sonner-toast] {
+  text-align: left;
+}

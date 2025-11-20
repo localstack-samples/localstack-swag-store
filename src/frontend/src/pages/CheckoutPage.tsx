@@ -107,7 +107,7 @@ function CheckoutPage() {
           {productId ? (
             <div className="p-6 border border-violet-500 rounded-lg">
               <div className="flex items-start gap-4">
-                <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-neutral-200 flex-shrink-0">
+                <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-zinc-600 flex-shrink-0">
                   {(() => {
                     const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
                     const src = imageBaseUrl && imageBaseUrl.trim().length > 0
@@ -143,7 +143,7 @@ function CheckoutPage() {
               <ul className="mt-3 space-y-2">
                 {cartItems.map((p) => (
                   <li key={p.productId} className="flex items-start gap-4 text-md border border-violet-500 rounded-lg p-2">
-                    <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 flex-shrink-0">
+                    <div className="w-[175px] h-[175px] border rounded-xl overflow-hidden border-zinc-600 bg-white dark:bg-neutral-950 flex-shrink-0">
                       {(() => {
                         const imageBaseUrl = (import.meta as any).env?.VITE_IMAGE_BUCKET_URL as string | undefined
                         const src = imageBaseUrl && imageBaseUrl.trim().length > 0

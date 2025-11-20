@@ -11,7 +11,7 @@ function Navbar() {
   return (
     <>
       <nav className="text-white w-full border-b border-zinc-800 bg-zinc-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-66px flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-3">
           <Link to="/" className="flex items-center">
             <img 
               src="/images/LocalStack_Logo.svg" 
