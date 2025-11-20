@@ -32,6 +32,7 @@ export class MainStack extends cdk.Stack {
       ordersTable: this.data.ordersTable,
       orderQueue: this.messaging.orderProcessingQueue,
       notificationStateMachine: this.notifications.stateMachine,
+      orderWriteFailureTopic: this.messaging.orderWriteFailuresTopic,
     });
 
 

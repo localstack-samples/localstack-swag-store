@@ -7,6 +7,7 @@ import * as path from 'path';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { Cors } from 'aws-cdk-lib/aws-apigateway';
 
 interface ApiStackProps {
@@ -14,6 +15,7 @@ interface ApiStackProps {
   ordersTable?: dynamodb.ITable;
   orderQueue?: sqs.IQueue;
   notificationStateMachine?: sfn.IStateMachine;
+  orderWriteFailureTopic?: sns.ITopic;
 }
 
 export class ApiStack extends Construct {
@@ -65,12 +67,14 @@ export class ApiStack extends Construct {
         ORDERS_TABLE: props.ordersTable ? props.ordersTable.tableName : 'orders',
         ORDER_QUEUE_URL: props.orderQueue ? props.orderQueue.queueUrl : '',
         EMAIL_STATE_MACHINE_ARN: props.notificationStateMachine ? props.notificationStateMachine.stateMachineArn : '',
+        ORDER_WRITE_FAILURE_TOPIC_ARN: props.orderWriteFailureTopic ? props.orderWriteFailureTopic.topicArn : '',
       },
       timeout: Duration.seconds(10),
     });
     if (props.ordersTable) props.ordersTable.grantWriteData(createOrderLambda);
     if (props.orderQueue) props.orderQueue.grantSendMessages(createOrderLambda);
     if (props.notificationStateMachine) props.notificationStateMachine.grantStartExecution(createOrderLambda);
+    if (props.orderWriteFailureTopic) props.orderWriteFailureTopic.grantPublish(createOrderLambda);
 
     const orders = this.restApi.root.addResource('orders');
     orders.addMethod('POST', new apigw.LambdaIntegration(createOrderLambda));
