@@ -70,6 +70,15 @@ seed:			## Seed the products table with sample data
 	npm run seed
 	@echo "Products seeded!"
 
+app:			## Build, bootstrap, deploy (backend & frontend), then seed
+	@echo "Running full app workflow..."
+	$(MAKE) build
+	$(MAKE) bootstrap
+	$(MAKE) deploy
+	$(MAKE) deploy-frontend
+	$(MAKE) seed
+	@echo "App workflow complete!"
+
 api-url:		## Get the API Gateway URL
 	@echo "Discovering API Gateway URL..."
 	@API_ID=$$(awslocal apigateway get-rest-apis | jq -r '.items[0].id'); \
@@ -161,4 +170,4 @@ clean:			## Clean node_modules and build artifacts
 	rm -f .api-id
 	@echo "Cleanup complete!"
 
-.PHONY: help check install install-global start stop status build bootstrap deploy seed api-url test-api test demo logs logs-tail setup teardown clean
+.PHONY: help check install install-global start stop status build bootstrap deploy seed api-url test-api test demo logs logs-tail setup teardown clean app
