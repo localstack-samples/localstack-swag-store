@@ -12,6 +12,8 @@
 
 This sample deploys a serverless swag store using AWS CDK on LocalStack. It provisions the backend (API, queues, tables, workflows), a public image bucket, and a CloudFront‑hosted frontend.
 
+![LocalStack Swag Store](./images/architecture-diagram.png)
+
 ### Prerequisites
 
 - LocalStack CLI with `LOCALSTACK_AUTH_TOKEN`
