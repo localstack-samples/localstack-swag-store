@@ -30,7 +30,7 @@ function HomePage() {
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <header className="mb-8 flex flex-col items-center text-center gap-6">
-        <img src="/images/banner.png" alt="LocalStack Swag Store" className="w-full h-auto rounded-[20px]" />
+        <img src="./images/banner.png" alt="LocalStack Swag Store" className="w-full h-auto rounded-[20px]" />
         <h1 className="text-4xl font-semibold tracking-normal text-white">
           Claim your swag with coins.
         </h1>
