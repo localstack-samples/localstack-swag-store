@@ -33,12 +33,12 @@ async function resolveApiBaseUrl() {
   }
 
   // LocalStack execute-api shim path for API Gateway v1
-  return `http://localhost:4566/_aws/execute-api/${match.id}/${STAGE}/`
+  return `${AWS_ENDPOINT_URL}/_aws/execute-api/${match.id}/${STAGE}/`
 }
 
 function guessImageBucketWebsiteUrlFromName(bucketName) {
   // LocalStack S3 website endpoint pattern
-  return `http://${bucketName}.s3-website.localhost.localstack.cloud:4566/`
+  return `${AWS_ENDPOINT_URL}/${bucketName}/`
 }
 
 async function resolveImageBucketWebsiteUrl() {
