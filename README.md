@@ -74,4 +74,4 @@ Notes:
     make demo
     ```
 
-- Open the frontend using the `CloudFrontDomain` output to check out the products and make orders. Navigate to the Admin page (`/admin`) to view pending orders and fulfill them.
+- Open the frontend using the `CloudFrontDomain` output to check out the products and make orders. Navigate to the Admin page (`/#/admin`) to view pending orders and fulfill them.
