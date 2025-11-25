@@ -20,7 +20,7 @@ check:			## Check if all required prerequisites are installed
 	@command -v node > /dev/null 2>&1 || { echo "Node.js is not installed. Please install Node.js 22 and try again."; exit 1; }
 	@command -v localstack > /dev/null 2>&1 || { echo "LocalStack CLI is not installed. Please install LocalStack CLI and try again."; exit 1; }
 	@command -v cdk > /dev/null 2>&1 || { echo "CDK is not installed. Please run 'npm install -g aws-cdk' and try again."; exit 1; }
-	@command -v cdklocal > /dev/null 2>&1 || { echo "cdklocal is not installed. Please run 'npm install -g aws-cdk-local' and try again."; exit 1; }
+	@command -v npx cdklocal > /dev/null 2>&1 || { echo "npx cdklocal is not installed. Please run 'npm install -g aws-cdk-local' and try again."; exit 1; }
 	@echo "All prerequisites are available!"
 
 install:		## Install all dependencies (root + cdk)
@@ -52,17 +52,17 @@ build:			## Build the CDK app
 
 bootstrap:		## Bootstrap CDK for LocalStack
 	@echo "Bootstrapping CDK..."
-	cd cdk && npm run build && cdklocal bootstrap
+	cd cdk && npm run build && npx cdklocal bootstrap
 	@echo "CDK bootstrapped!"
 
 deploy:			## Deploy all CDK stacks to LocalStack
 	@echo "Deploying CDK stacks..."
-	cd cdk && cdklocal deploy SwagStoreMainStack --require-approval never
+	cd cdk && npx cdklocal deploy SwagStoreMainStack --require-approval never
 	@echo "CDK stacks deployed!"
 
 deploy-frontend:		## Deploy the frontend CDK stack to LocalStack
 	@echo "Deploying frontend CDK stack..."
-	cd cdk && cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
+	cd cdk && npx cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
 	@echo "Frontend CDK stack deployed!"
 
 seed:			## Seed the products table with sample data
