@@ -14,7 +14,7 @@ function Navbar() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-3">
           <Link to="/" className="flex items-center">
             <img 
-              src="/images/LocalStack_Logo.svg" 
+              src="./images/LocalStack_Logo.svg"
               alt="LocalStack Swag Store" 
               className="h-16 w-auto"
             />

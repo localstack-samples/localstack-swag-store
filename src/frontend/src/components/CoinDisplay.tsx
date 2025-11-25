@@ -22,7 +22,7 @@ function renderCoins(count: number, size: 'sm' | 'md' | 'lg') {
       {Array.from({ length: count }, (_, index) => (
         <img
           key={index}
-          src="/images/coin.svg"
+          src="./images/coin.svg"
           alt="Coin"
           className={`${sizeClasses[size]} -ml-2 first:ml-0`}
           style={{ zIndex: index + 1 }}
