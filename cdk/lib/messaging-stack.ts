@@ -35,7 +35,7 @@ export class MessagingStack extends Construct {
     });
 
     this.processOrderLambda = new NodejsFunction(this, 'ProcessOrderLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'workers', 'process-order', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -81,7 +81,7 @@ export class MessagingStack extends Construct {
     }));
 
     this.retryOrderWritesLambda = new NodejsFunction(this, 'RetryOrderWritesLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'workers', 'retry-order-write', 'index.ts'),
       handler: 'handler',
       environment: {
