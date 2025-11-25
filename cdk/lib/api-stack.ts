@@ -33,7 +33,7 @@ export class ApiStack extends Construct {
     });
 
     const listProductsLambda = new NodejsFunction(this, 'ListProductsLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'list-products', 'index.ts'),
       handler: 'handler',
       bundling: {
@@ -60,7 +60,7 @@ export class ApiStack extends Construct {
 
     // create-order Lambda and route
     const createOrderLambda = new NodejsFunction(this, 'CreateOrderLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'create-order', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -81,7 +81,7 @@ export class ApiStack extends Construct {
 
     // get-order Lambda and route
     const getOrderLambda = new NodejsFunction(this, 'GetOrderLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'get-order', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -99,7 +99,7 @@ export class ApiStack extends Construct {
     const adminOrders = admin.addResource('orders');
 
     const listOrdersLambda = new NodejsFunction(this, 'ListOrdersLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'list-orders', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -112,7 +112,7 @@ export class ApiStack extends Construct {
 
     const fulfill = adminOrders.addResource('fulfill');
     const fulfillOrderLambda = new NodejsFunction(this, 'FulfillOrderLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'fulfill-order', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -129,7 +129,7 @@ export class ApiStack extends Construct {
 
     const reject = adminOrders.addResource('reject');
     const rejectOrderLambda = new NodejsFunction(this, 'RejectOrderLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'reject-order', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -145,7 +145,7 @@ export class ApiStack extends Construct {
     const inventory = admin.addResource('inventory');
     const adjust = inventory.addResource('adjust');
     const adjustInventoryLambda = new NodejsFunction(this, 'AdjustInventoryLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'adjust-inventory', 'index.ts'),
       handler: 'handler',
       environment: {
@@ -158,7 +158,7 @@ export class ApiStack extends Construct {
 
     const stats = admin.addResource('stats');
     const getStatsLambda = new NodejsFunction(this, 'GetStatsLambda', {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '..', '..', 'src', 'lambdas', 'api', 'admin', 'get-stats', 'index.ts'),
       handler: 'handler',
       environment: {
