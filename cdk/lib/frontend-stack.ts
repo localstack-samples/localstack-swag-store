@@ -56,7 +56,7 @@ export class FrontendStack extends cdk.Stack {
               tryBundle(outputDir: string) {
                 const env = {
                   ...process.env,
-                  AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL || 'http://localhost:4566',
+                  AWS_ENDPOINT_URL: process.env.AWS_ENDPOINT_URL || 'https://localhost.localstack.cloud',
                 } as NodeJS.ProcessEnv;
                 try {
                   execSync('npm ci --no-audit --no-fund --include=dev', { cwd: frontendPath, stdio: 'inherit', env });

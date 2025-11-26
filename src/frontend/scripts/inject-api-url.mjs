@@ -10,7 +10,7 @@ const __dirname = dirname(__filename)
 const projectRoot = join(__dirname, '..')
 
 const API_NAME = process.env.API_NAME || 'LocalStack Swag Store API'
-const AWS_ENDPOINT_URL = process.env.AWS_ENDPOINT_URL || 'http://localhost:4566'
+const AWS_ENDPOINT_URL = process.env.AWS_ENDPOINT_URL || 'https://localhost.localstack.cloud'
 const REGION = process.env.AWS_REGION || 'us-east-1'
 const STAGE = process.env.API_STAGE || 'v1'
 const IMAGE_BUCKET_NAME_OVERRIDE = process.env.IMAGE_BUCKET_NAME || ''

@@ -1,7 +1,7 @@
 import { createOrder, waitForOrderStatus, getProductStock, fulfillOrder } from './lib/test-utils';
 import axios from 'axios';
 
-const LOCALSTACK_SES_URL = process.env.LOCALSTACK_SES_URL || 'http://localhost.localstack.cloud:4566/_aws/ses';
+const LOCALSTACK_SES_URL = process.env.LOCALSTACK_SES_URL || 'https://localhost.localstack.cloud/_aws/ses';
 const PRODUCT_ID = 'p-sticker-pack-1';
 
 describe('Admin Fulfillment', () => {

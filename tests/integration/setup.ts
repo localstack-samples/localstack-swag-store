@@ -8,7 +8,7 @@ function sanitizeBaseUrl(url: string): string {
 async function discoverFromApiGw(): Promise<string> {
   const client = new APIGatewayClient({
     region: process.env.AWS_REGION || 'us-east-1',
-    endpoint: process.env.AWS_ENDPOINT_URL || 'http://localhost:4566',
+    endpoint: process.env.AWS_ENDPOINT_URL || 'https://localhost.localstack.cloud',
     credentials: { accessKeyId: 'test', secretAccessKey: 'test' },
   });
   const apis = await client.send(new GetRestApisCommand({ limit: 50 }));

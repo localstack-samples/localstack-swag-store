@@ -5,7 +5,7 @@ import { join } from 'path';
 
 async function main() {
   const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
-  const endpoint = process.env.AWS_ENDPOINT_URL || process.env.AWS_ENDPOINT || 'http://localhost.localstack.cloud:4566';
+  const endpoint = process.env.AWS_ENDPOINT_URL || process.env.AWS_ENDPOINT || 'https://localhost.localstack.cloud';
 
   const ddbClient = new DynamoDBClient({ region, endpoint });
   const docClient = DynamoDBDocumentClient.from(ddbClient);

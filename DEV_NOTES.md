@@ -37,12 +37,12 @@ npm run seed
 Discover the API Gateway invoke URL dynamically (preferred):
 ```bash
 API_ID=$(awslocal apigateway get-rest-apis | jq -r '.items[0].id')
-API_URL="https://${API_ID}.execute-api.localhost.localstack.cloud:4566/v1"
+API_URL="https://${API_ID}.execute-api.localhost.localstack.cloud/v1"
 echo $API_URL
 ```
 If needed, you can use the alternative path-based format:
 ```bash
-API_URL_ALT="http://localhost:4566/_aws/execute-api/${API_ID}/v1"
+API_URL_ALT="https://localhost/_aws/execute-api/${API_ID}/v1"
 ```
 
 ### Full End-to-End Test Flow

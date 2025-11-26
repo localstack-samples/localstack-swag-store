@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createOrder, waitForOrderStatus } from './lib/test-utils';
 
-const LOCALSTACK_ENDPOINT = (process.env.AWS_ENDPOINT_URL || 'http://localhost:4566').replace(/\/$/, '');
+const LOCALSTACK_ENDPOINT = (process.env.AWS_ENDPOINT_URL || 'https://localhost.localstack.cloud').replace(/\/$/, '');
 const CHAOS_FAULTS_URL = `${LOCALSTACK_ENDPOINT}/_localstack/chaos/faults`;
 
 async function configureChaosFaults(rules: any[]): Promise<void> {
