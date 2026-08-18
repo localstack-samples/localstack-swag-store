@@ -29,20 +29,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup LocalStack
-        uses: localstack/setup-localstack@main
-        with:
-          image-tag: 'latest'
-          use-pro: 'true'
-          configuration: LS_LOG=trace
-          install-awslocal: 'true'
+      - name: Install lstk
+        run: npm install -g @localstack/lstk
+
+      - name: Start LocalStack
         env:
           LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
+        run: lstk start
 
-      - name: Install CDK and cdklocal
+      - name: Install CDK
         run: |
           npm install -g aws-cdk
-          npm install -g aws-cdk-local
 
       - name: Install dependencies
         run: |
@@ -57,17 +54,17 @@ jobs:
       - name: Bootstrap CDK
         working-directory: cdk
         run: |
-          cdklocal bootstrap
+          lstk cdk bootstrap
 
       - name: Deploy SwagStoreMainStack to LocalStack
         working-directory: cdk
         run: |
-          cdklocal deploy SwagStoreMainStack --require-approval never
+          lstk cdk deploy SwagStoreMainStack --require-approval never
 
       - name: Deploy SwagStoreFrontendStack to LocalStack
         working-directory: cdk
         run: |
-          cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
+          lstk cdk -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
 
       - name: Seed products data
         env:
@@ -90,4 +87,4 @@ jobs:
       - name: LocalStack logs (on failure)
         if: failure()
         run: |
-          localstack logs
+          lstk logs

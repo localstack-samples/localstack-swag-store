@@ -4,8 +4,8 @@
 
 1. Prerequisites
    - Node.js 22
-   - LocalStack CLI running (Docker)
-   - CDK & `cdklocal` installed
+   - [`lstk` CLI](https://docs.localstack.cloud/aws/developer-tools/running-localstack/lstk/) and Docker
+   - CDK installed
 2. Install dependencies
 ```bash
 # Root (tools + lambdas)
@@ -15,16 +15,15 @@ cd cdk && npm install && cd -
 ```
 3. Start LocalStack
 ```bash
-localstack start -d
-localstack wait -t 60
+lstk start
 ```
 4. Deploy stacks
 ```bash
 # From cdk/
 cd cdk
-cdklocal bootstrap
+lstk cdk bootstrap
 # Deploy all stacks to LocalStack (uses local AWS creds automatically)
-cdklocal deploy --all --require-approval never
+lstk cdk deploy --all --require-approval never
 cd -
 ```
 5. Seed products
@@ -36,7 +35,7 @@ npm run seed
 
 Discover the API Gateway invoke URL dynamically (preferred):
 ```bash
-API_ID=$(awslocal apigateway get-rest-apis | jq -r '.items[0].id')
+API_ID=$(lstk aws apigateway get-rest-apis | jq -r '.items[0].id')
 API_URL="https://${API_ID}.execute-api.localhost.localstack.cloud:4566/v1"
 echo $API_URL
 ```

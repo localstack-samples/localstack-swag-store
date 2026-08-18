@@ -4,7 +4,7 @@
 | ------------ | ------------------------------------------------------------------------------------------ |
 | Environment  | LocalStack, AWS                                                                            |
 | Services     | API Gateway, Lambda, DynamoDB, S3, SQS, Step Functions, SES, CloudFront                   |
-| Integrations | AWS CDK, AWS CLI, cdklocal     |
+| Integrations | AWS CDK, AWS CLI, lstk     |
 | Categories   | Serverless, Web, Messaging                                                                 |
 | Level        | Intermediate                                                                                |
 
@@ -16,9 +16,9 @@ This sample deploys a serverless swag store using AWS CDK on LocalStack. It prov
 
 ### Prerequisites
 
-- LocalStack CLI with `LOCALSTACK_AUTH_TOKEN`
-- AWS CLI with `awslocal`
-- CDK with `cdklocal`
+- [`lstk` CLI](https://docs.localstack.cloud/aws/developer-tools/running-localstack/lstk/) with `LOCALSTACK_AUTH_TOKEN`
+- AWS CLI (required by `lstk aws`)
+- CDK with the `lstk cdk` proxy
 - Node.js 22 and `make`
 
 ### Installation
@@ -34,8 +34,8 @@ make install
 Start LocalStack and deploy stacks:
 
 ```bash
-localstack auth set-token <your-auth-token>
-localstack start
+export LOCALSTACK_AUTH_TOKEN=<your-auth-token>
+lstk start
 make build
 make bootstrap
 make deploy           # deploy backend (SwagStoreMainStack)

@@ -1,0 +1,8 @@
+[[containers]]
+type = "aws"
+tag  = "latest"
+port = "4566"
+env  = ["ci"]
+
+[env.ci]
+LS_LOG = "trace"

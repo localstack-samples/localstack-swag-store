@@ -18,9 +18,9 @@ check:			## Check if all required prerequisites are installed
 	@echo "Checking prerequisites..."
 	@command -v docker > /dev/null 2>&1 || { echo "Docker is not installed. Please install Docker and try again."; exit 1; }
 	@command -v node > /dev/null 2>&1 || { echo "Node.js is not installed. Please install Node.js 22 and try again."; exit 1; }
-	@command -v localstack > /dev/null 2>&1 || { echo "LocalStack CLI is not installed. Please install LocalStack CLI and try again."; exit 1; }
+	@command -v lstk > /dev/null 2>&1 || { echo "lstk CLI is not installed. Please run 'npm install -g @localstack/lstk' and try again."; exit 1; }
+	@command -v aws > /dev/null 2>&1 || { echo "AWS CLI is not installed (required by 'lstk aws'). Please install it and try again."; exit 1; }
 	@command -v cdk > /dev/null 2>&1 || { echo "CDK is not installed. Please run 'npm install -g aws-cdk' and try again."; exit 1; }
-	@command -v npx cdklocal > /dev/null 2>&1 || { echo "npx cdklocal is not installed. Please run 'npm install -g aws-cdk-local' and try again."; exit 1; }
 	@echo "All prerequisites are available!"
 
 install:		## Install all dependencies (root + cdk)
@@ -30,20 +30,18 @@ install:		## Install all dependencies (root + cdk)
 	cd cdk && npm install
 	@echo "All dependencies installed!"
 
-start:			## Start LocalStack in detached mode
+start:			## Start LocalStack
 	@echo "Starting LocalStack..."
-	localstack start -d
-	@echo "Waiting for LocalStack to be ready..."
-	localstack wait -t 60
+	lstk start --non-interactive
 	@echo "LocalStack is ready!"
 
 stop:			## Stop LocalStack
 	@echo "Stopping LocalStack..."
-	localstack stop
+	lstk stop
 	@echo "LocalStack stopped!"
 
 status:			## Check LocalStack status
-	@localstack status || echo "LocalStack is not running"
+	@lstk status || echo "LocalStack is not running"
 
 build:			## Build the CDK app
 	@echo "Building CDK app..."
@@ -52,17 +50,17 @@ build:			## Build the CDK app
 
 bootstrap:		## Bootstrap CDK for LocalStack
 	@echo "Bootstrapping CDK..."
-	cd cdk && npm run build && npx cdklocal bootstrap
+	cd cdk && npm run build && lstk cdk bootstrap
 	@echo "CDK bootstrapped!"
 
 deploy:			## Deploy all CDK stacks to LocalStack
 	@echo "Deploying CDK stacks..."
-	cd cdk && npx cdklocal deploy SwagStoreMainStack --require-approval never
+	cd cdk && lstk cdk deploy SwagStoreMainStack --require-approval never
 	@echo "CDK stacks deployed!"
 
 deploy-frontend:		## Deploy the frontend CDK stack to LocalStack
 	@echo "Deploying frontend CDK stack..."
-	cd cdk && npx cdklocal -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
+	cd cdk && lstk cdk -a "node bin/frontend.js" deploy SwagStoreFrontendStack --require-approval never
 	@echo "Frontend CDK stack deployed!"
 
 seed:			## Seed the products table with sample data
@@ -81,7 +79,7 @@ app:			## Build, bootstrap, deploy (backend & frontend), then seed
 
 api-url:		## Get the API Gateway URL
 	@echo "Discovering API Gateway URL..."
-	@API_ID=$$(awslocal apigateway get-rest-apis | jq -r '.items[0].id'); \
+	@API_ID=$$(lstk aws apigateway get-rest-apis | jq -r '.items[0].id'); \
 	if [ "$$API_ID" != "null" ] && [ "$$API_ID" != "" ]; then \
 		echo "API URL: https://$$API_ID.execute-api.localhost.localstack.cloud:4566/v1"; \
 		echo "$$API_ID" > .api-id; \
@@ -141,10 +139,10 @@ demo:			## Run a full demo flow (create order, fulfill, check status)
 	fi
 
 logs:			## Show LocalStack logs
-	@localstack logs
+	@lstk logs
 
 logs-tail:		## Tail LocalStack logs
-	@localstack logs -f
+	@lstk logs -f
 
 setup:			## Complete setup (install deps, start LocalStack, deploy, seed)
 	@echo "Starting complete setup..."
