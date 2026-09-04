@@ -32,7 +32,7 @@ install:		## Install all dependencies (root + cdk)
 
 start:			## Start LocalStack
 	@echo "Starting LocalStack..."
-	lstk start --non-interactive
+	lstk start
 	@echo "LocalStack is ready!"
 
 stop:			## Stop LocalStack
