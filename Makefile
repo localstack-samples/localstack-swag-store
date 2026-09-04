@@ -32,12 +32,12 @@ install:		## Install all dependencies (root + cdk)
 
 start:			## Start LocalStack
 	@echo "Starting LocalStack..."
-	lstk start
+	unset AWS_ENDPOINT_URL; lstk start
 	@echo "LocalStack is ready!"
 
 stop:			## Stop LocalStack
 	@echo "Stopping LocalStack..."
-	lstk stop
+	unset AWS_ENDPOINT_URL; lstk stop
 	@echo "LocalStack stopped!"
 
 status:			## Check LocalStack status
@@ -139,10 +139,10 @@ demo:			## Run a full demo flow (create order, fulfill, check status)
 	fi
 
 logs:			## Show LocalStack logs
-	@lstk logs
+	@unset AWS_ENDPOINT_URL; lstk logs
 
 logs-tail:		## Tail LocalStack logs
-	@lstk logs -f
+	@unset AWS_ENDPOINT_URL; lstk logs -f
 
 setup:			## Complete setup (install deps, start LocalStack, deploy, seed)
 	@echo "Starting complete setup..."
